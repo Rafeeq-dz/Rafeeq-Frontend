@@ -35,8 +35,7 @@ const sidebarItems: SidebarItem[] = [
     href: "/dashboard/ai-hub",
     icon: <Sparkles size={20} />,
     children: [
-      { label: "Content Generator", href: "/dashboard/ai-hub/content-generator", icon: <Sparkles size={18} /> },
-      { label: "AI Tutor", href: "/dashboard/ai-hub/ai-tutor", icon: <Bot size={18} /> },
+      { label: "AI Tools", href: "/dashboard/ai-hub/ai-tools", icon: <Bot size={18} /> },
       { label: "Opportunities", href: "/dashboard/ai-hub/opportunities", icon: <Target size={18} /> },
       { label: "Discord Sync", href: "/dashboard/ai-hub/discord-sync", icon: <MessageSquare size={18} /> },
     ],
@@ -153,7 +152,7 @@ export function DashboardSidebar() {
       </div>
 
       <div className="mt-6 px-3">
-        <div className="flex items-center gap-3 rounded-md bg-accent/50 p-3">
+        <div className="flex items-center gap-3 rounded-md p-3">
           <div className="w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-medium">
             {user?.name?.[0] || "U"}
           </div>

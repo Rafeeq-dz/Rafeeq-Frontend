@@ -199,8 +199,7 @@ const recentGenerations = [
 
 // Quick Access Links
 const quickAccessLinks = [
-  { label: "AI Tutor", path: "/dashboard/ai-hub/ai-tutor", icon: Bot },
-  { label: "Content Generator", path: "/dashboard/ai-hub/content-generator", icon: Sparkles },
+  { label: "AI Tools", path: "/dashboard/ai-hub/ai-tools", icon: Bot },
   { label: "Opportunities", path: "/dashboard/ai-hub/opportunities", icon: TrendingUp },
   { label: "My Courses", path: "/dashboard/my-learning/courses", icon: BookOpen },
   { label: "Calendar", path: "/dashboard/calendar", icon: Calendar },
@@ -714,7 +713,7 @@ export function DashboardPage() {
                 variant="ghost"
                 size="sm"
                 className="text-secondary hover:text-secondary/80"
-                onClick={() => window.location.href = "/dashboard/ai-hub/content-generator"}
+                onClick={() => window.location.href = "/dashboard/ai-hub/ai-tools"}
               >
                 Generate More <ChevronRight className="h-4 w-4 ml-1" />
               </Button>
