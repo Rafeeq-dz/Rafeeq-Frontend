@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { authApi } from "@/api/api";
 import { AuthRedirect } from "@/components/auth/auth-redirect";
+import logo from "@/assets/logo.svg"
 
 export function LoginPage() {
   const navigate = useNavigate();
@@ -42,24 +43,36 @@ export function LoginPage() {
 
   return (
     <AuthRedirect>
-      <div className="min-h-screen bg-gradient-to-b from-white to-primary-50 flex flex-col">
-        <div className="flex-1 flex items-center justify-center p-4 py-12">
-          <div className="w-full max-w-md space-y-8 bg-white p-8 rounded-xl border border-primary-100 shadow-lg">
-            <div className="text-center">
-              <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
-                Welcome back
-              </h1>
-              <p className="text-gray-600 mt-2">Sign in to your account</p>
+      <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+        {/* Background decorative elements */}
+        <div className="absolute inset-0 overflow-hidden pointer-events-none">
+          <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+          <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"></div>
+        </div>
+
+        <div className="flex-1 flex items-center justify-center p-4 py-12 relative z-10">
+          <div className="w-full max-w-md space-y-8 bg-card p-10 rounded-3xl border border-border shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-sm">
+            {/* Logo */}
+            <div className="flex justify-center">
+              <img src={logo} alt="Aspo Logo" className="h-12 w-auto" />
             </div>
 
-            <form onSubmit={handleSubmit} className="space-y-6">
-              <div className="space-y-4">
+            {/* Header */}
+            <div className="text-center space-y-3">
+              <h1 className="text-3xl font-bold text-foreground">
+                Welcome back
+              </h1>
+              <p className="text-muted-foreground text-base">Sign in to continue your learning journey</p>
+            </div>
+
+            <form onSubmit={handleSubmit} className="space-y-6 mt-8">
+              <div className="space-y-5">
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium mb-1 text-gray-700"
+                    className="block text-sm font-semibold mb-2.5 text-foreground"
                   >
-                    Email
+                    Email Address
                   </label>
                   <input
                     id="email"
@@ -68,14 +81,14 @@ export function LoginPage() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    className="w-full h-12 px-4 rounded-xl border-2 border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all hover:border-primary/50"
                     placeholder="your.email@example.com"
                   />
                 </div>
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-sm font-medium mb-1 text-gray-700"
+                    className="block text-sm font-semibold mb-2.5 text-foreground"
                   >
                     Password
                   </label>
@@ -86,20 +99,20 @@ export function LoginPage() {
                     value={formData.password}
                     onChange={handleChange}
                     required
-                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
-                    placeholder="••••••••"
+                    className="w-full h-12 px-4 rounded-xl border-2 border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all hover:border-primary/50"
+                    placeholder="Enter your password"
                   />
                 </div>
-                <div className="flex items-center justify-between">
+                <div className="flex items-center justify-between pt-1">
                   <div className="flex items-center">
                     <input
                       id="remember-me"
                       type="checkbox"
-                      className="h-4 w-4 rounded border-primary-300 text-primary focus:ring-primary/50"
+                      className="h-4 w-4 rounded border-input text-primary focus:ring-primary/20 accent-primary cursor-pointer"
                     />
                     <label
                       htmlFor="remember-me"
-                      className="ml-2 block text-sm text-gray-600"
+                      className="ml-2.5 block text-sm text-muted-foreground cursor-pointer hover:text-foreground transition-colors"
                     >
                       Remember me
                     </label>
@@ -107,9 +120,9 @@ export function LoginPage() {
                   <div className="text-sm">
                     <Link
                       to="/auth/forgot-password"
-                      className="text-primary hover:underline"
+                      className="text-primary hover:text-primary/80 font-semibold transition-colors"
                     >
-                      Forgot your password?
+                      Forgot password?
                     </Link>
                   </div>
                 </div>
@@ -118,23 +131,35 @@ export function LoginPage() {
               <Button
                 type="submit"
                 disabled={isLoading}
-                className="w-full bg-primary hover:bg-primary/80 transition-all shadow-md py-6 text-base"
+                className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] py-6 text-base font-bold rounded-xl mt-6"
               >
-                {isLoading ? "Signing in..." : "Sign in"}
-                {!isLoading && <ChevronRight className="ml-2 h-4 w-4" />}
+                {isLoading ? (
+                  <span className="flex items-center justify-center">
+                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    Signing in...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center">
+                    Sign in
+                    <ChevronRight className="ml-2 h-5 w-5" />
+                  </span>
+                )}
               </Button>
 
-              <div className="relative flex py-5 items-center">
-                <div className="flex-grow border-t border-gray-200"></div>
-                <span className="flex-shrink mx-4 text-sm text-gray-500">
-                  Or continue with
+              <div className="relative flex py-6 items-center">
+                <div className="flex-grow border-t border-border"></div>
+                <span className="flex-shrink mx-4 text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  Or
                 </span>
-                <div className="flex-grow border-t border-gray-200"></div>
+                <div className="flex-grow border-t border-border"></div>
               </div>
 
               <Button
                 variant="outline"
-                className="w-full border border-gray-200 hover:bg-primary-50/50 shadow-sm"
+                className="w-full h-12 border-2 border-border hover:bg-muted hover:border-primary/30 transition-all rounded-xl font-semibold"
               >
                 <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                   <path
@@ -157,14 +182,14 @@ export function LoginPage() {
                 Google
               </Button>
 
-              <div className="text-center text-sm">
-                <p className="text-gray-600">
+              <div className="text-center text-sm pt-6">
+                <p className="text-muted-foreground">
                   Don't have an account?{" "}
                   <Link
                     to="/auth/register"
-                    className="text-primary hover:underline font-medium"
+                    className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-4 decoration-2"
                   >
-                    Sign up
+                    Create one now
                   </Link>
                 </p>
               </div>
@@ -173,10 +198,10 @@ export function LoginPage() {
         </div>
 
         {/* Footer */}
-        <footer className="border-t bg-white py-4">
+        <footer className="border-t border-border/50 py-6 relative z-10">
           <div className="container mx-auto px-4">
-            <p className="text-xs text-gray-500 text-center">
-              © {new Date().getFullYear()} Aspo. All rights reserved.
+            <p className="text-xs text-muted-foreground text-center">
+              © {new Date().getFullYear()} Aspo. Empowering Algerian students. All rights reserved.
             </p>
           </div>
         </footer>

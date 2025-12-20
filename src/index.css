@@ -15,51 +15,51 @@
   -moz-osx-font-smoothing: grayscale;
 
   /* Brand Colors */
-  --brand-primary: 112 48 239; /* #7030EF - Purple */
-  --brand-accent: 219 31 255; /* #DB1FFF - Magenta */
-  --brand-dark: 9 11 32; /* #090B20 - Dark Navy */
+  --brand-primary: 74 58 255; /* #4A3AFF - Purple */
+  --brand-accent: 220 31 255; /* #DC1FFF - Magenta */
+  --brand-dark: 10 8 32; /* #0A0820 - Dark Navy */
   --brand-light: 255 255 255; /* #FFFFFF - White */
 
   /* Design System */
   --radius: 0.5rem;
   --background: hsl(0 0% 100%); /* White */
-  --foreground: hsl(233 24% 10%); /* Dark text */
+  --foreground: hsl(245 60% 8%); /* Dark text */
   --card: hsl(0 0% 100%);
-  --card-foreground: hsl(233 24% 10%);
+  --card-foreground: hsl(245 60% 8%);
   --popover: hsl(0 0% 100%);
-  --popover-foreground: hsl(233 24% 10%);
+  --popover-foreground: hsl(245 60% 8%);
   
-  /* Primary - Brand Purple #7030EF */
-  --primary: hsl(262 85% 58%);
+  /* Primary - Brand Purple #4A3AFF */
+  --primary: hsl(245 100% 62%);
   --primary-foreground: hsl(0 0% 100%);
   
-  /* Secondary - Brand Magenta #DB1FFF */
-  --secondary: hsl(289 100% 59%);
+  /* Secondary - Brand Magenta #DC1FFF */
+  --secondary: hsl(291 100% 56%);
   --secondary-foreground: hsl(0 0% 100%);
   
-  --muted: hsl(233 10% 95%);
-  --muted-foreground: hsl(233 5% 45%);
-  --accent: hsl(262 85% 58%);
+  --muted: hsl(245 20% 95%);
+  --muted-foreground: hsl(245 10% 45%);
+  --accent: hsl(245 100% 62%);
   --accent-foreground: hsl(0 0% 100%);
   --destructive: hsl(0 84% 60%);
-  --border: hsl(233 10% 90%);
-  --input: hsl(233 10% 90%);
-  --ring: hsl(262 85% 58%);
+  --border: hsl(245 15% 90%);
+  --input: hsl(245 15% 90%);
+  --ring: hsl(245 100% 62%);
   
-  --chart-1: hsl(262 85% 58%);
-  --chart-2: hsl(289 100% 59%);
-  --chart-3: hsl(233 65% 50%);
-  --chart-4: hsl(262 75% 70%);
-  --chart-5: hsl(289 90% 75%);
+  --chart-1: hsl(245 100% 62%);
+  --chart-2: hsl(291 100% 56%);
+  --chart-3: hsl(245 80% 70%);
+  --chart-4: hsl(245 70% 75%);
+  --chart-5: hsl(291 90% 75%);
   
   --sidebar: hsl(0 0% 98%);
-  --sidebar-foreground: hsl(233 24% 10%);
-  --sidebar-primary: hsl(262 85% 58%);
+  --sidebar-foreground: hsl(245 60% 8%);
+  --sidebar-primary: hsl(245 100% 62%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(233 10% 95%);
-  --sidebar-accent-foreground: hsl(233 24% 10%);
-  --sidebar-border: hsl(233 10% 90%);
-  --sidebar-ring: hsl(262 85% 58%);
+  --sidebar-accent: hsl(245 20% 95%);
+  --sidebar-accent-foreground: hsl(245 60% 8%);
+  --sidebar-border: hsl(245 15% 90%);
+  --sidebar-ring: hsl(245 100% 62%);
 }
 
 body {
@@ -116,45 +116,45 @@ button {
 }
 
 .dark {
-  /* Dark Mode - Using Brand Dark #090B20 as base */
-  --background: hsl(233 56% 8%); /* #090B20 - Brand Dark */
+  /* Dark Mode - Using Brand Dark #0A0820 as base */
+  --background: hsl(245 60% 8%); /* #0A0820 - Brand Dark */
   --foreground: hsl(0 0% 98%);
-  --card: hsl(233 50% 12%);
+  --card: hsl(245 50% 12%);
   --card-foreground: hsl(0 0% 98%);
-  --popover: hsl(233 50% 12%);
+  --popover: hsl(245 50% 12%);
   --popover-foreground: hsl(0 0% 98%);
   
-  /* Primary - Brand Purple #7030EF */
-  --primary: hsl(262 85% 58%);
+  /* Primary - Brand Purple #4A3AFF */
+  --primary: hsl(245 100% 62%);
   --primary-foreground: hsl(0 0% 100%);
   
-  /* Secondary - Brand Magenta #DB1FFF */
-  --secondary: hsl(289 100% 59%);
+  /* Secondary - Brand Magenta #DC1FFF */
+  --secondary: hsl(291 100% 56%);
   --secondary-foreground: hsl(0 0% 100%);
   
-  --muted: hsl(233 40% 18%);
-  --muted-foreground: hsl(233 10% 65%);
-  --accent: hsl(262 85% 58%);
+  --muted: hsl(245 40% 18%);
+  --muted-foreground: hsl(245 10% 65%);
+  --accent: hsl(245 100% 62%);
   --accent-foreground: hsl(0 0% 100%);
   --destructive: hsl(0 62% 50%);
-  --border: hsl(233 30% 18%);
-  --input: hsl(233 30% 18%);
-  --ring: hsl(262 85% 58%);
+  --border: hsl(245 30% 18%);
+  --input: hsl(245 30% 18%);
+  --ring: hsl(245 100% 62%);
   
-  --chart-1: hsl(262 85% 58%);
-  --chart-2: hsl(289 100% 59%);
-  --chart-3: hsl(233 65% 60%);
-  --chart-4: hsl(262 75% 70%);
-  --chart-5: hsl(289 90% 75%);
+  --chart-1: hsl(245 100% 62%);
+  --chart-2: hsl(291 100% 56%);
+  --chart-3: hsl(245 80% 70%);
+  --chart-4: hsl(245 70% 75%);
+  --chart-5: hsl(291 90% 75%);
   
-  --sidebar: hsl(233 50% 12%);
+  --sidebar: hsl(245 50% 12%);
   --sidebar-foreground: hsl(0 0% 98%);
-  --sidebar-primary: hsl(262 85% 58%);
+  --sidebar-primary: hsl(245 100% 62%);
   --sidebar-primary-foreground: hsl(0 0% 100%);
-  --sidebar-accent: hsl(233 40% 18%);
+  --sidebar-accent: hsl(245 40% 18%);
   --sidebar-accent-foreground: hsl(0 0% 98%);
-  --sidebar-border: hsl(233 30% 18%);
-  --sidebar-ring: hsl(262 85% 58%);
+  --sidebar-border: hsl(245 30% 18%);
+  --sidebar-ring: hsl(245 100% 62%);
 }
 
 @layer base {

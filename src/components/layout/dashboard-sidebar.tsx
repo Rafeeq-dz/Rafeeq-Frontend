@@ -80,8 +80,7 @@ export function DashboardSidebar() {
     <aside className="w-64 border-r bg-background h-screen sticky top-0 overflow-y-auto py-6 px-3 flex flex-col">
       <div className="mb-6 px-3">
         <Link to="/dashboard" className="flex items-center">
-          <img src={logo} alt="Aspo Logo" className="w-8 h-8 mr-2" />
-          <span className="font-bold text-4xl">Aspo</span>
+          <img src={logo} alt="Aspo Logo" className=" mr-2" />
         </Link>
       </div>
 

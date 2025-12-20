@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/auth-context";
 import { authApi } from "@/api/api";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
+import logo from "@/assets/logo.svg"
 
 export function RegisterPage() {
   const navigate = useNavigate();
@@ -140,29 +141,51 @@ export function RegisterPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-background to-secondary flex flex-col">
-      <div className="flex-1 flex items-center justify-center p-4 py-12">
-        <div className="w-full max-w-md space-y-8 bg-background p-8 rounded-xl border border-border shadow-lg">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold bg-gradient-to-r from-primary to-primary/70 bg-clip-text text-transparent">
+    <div className="min-h-screen bg-background flex flex-col relative overflow-hidden">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+        <div className="absolute top-1/2 -left-40 w-80 h-80 bg-secondary/5 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-40 right-1/3 w-80 h-80 bg-primary/5 rounded-full blur-3xl"></div>
+      </div>
+
+      <div className="flex-1 flex items-center justify-center p-4 py-12 relative z-10">
+        <div className="w-full max-w-md space-y-8 bg-card p-10 rounded-3xl border border-border shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-sm">
+          {/* Logo */}
+            <div className="flex justify-center">
+              <img src={logo} alt="Aspo Logo" className="h-12 w-auto" />
+            </div>
+
+          {/* Header */}
+          <div className="text-center space-y-3">
+            <h1 className="text-3xl font-bold text-foreground">
               Create your account
             </h1>
-            <p className="text-muted-foreground mt-2">
-              Join the Algerian educational community
+            <p className="text-muted-foreground text-base">
+              Join thousands of Algerian students
             </p>
           </div>
 
           {step === 1 && (
             <div className="space-y-6">
-              <div className="text-center mb-6">
-                <p className="font-medium text-primary">Create your account</p>
+              {/* Progress indicator */}
+              <div className="flex items-center justify-center space-x-2 mb-6">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">1</div>
+                  <span className="ml-2 text-sm font-semibold text-primary">Basic Info</span>
+                </div>
+                <div className="w-12 h-0.5 bg-border mx-2"></div>
+                <div className="flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-muted text-muted-foreground flex items-center justify-center text-sm font-bold">2</div>
+                  <span className="ml-2 text-sm font-medium text-muted-foreground">Profile</span>
+                </div>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-5 mt-8">
                 <div>
                   <label
                     htmlFor="name"
-                    className="block text-sm font-medium mb-1 text-gray-700"
+                    className="block text-sm font-semibold mb-2.5 text-foreground"
                   >
                     Full Name
                   </label>
@@ -172,7 +195,7 @@ export function RegisterPage() {
                     type="text"
                     value={formData.name}
                     onChange={handleChange}
-                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    className="w-full h-12 px-4 rounded-xl border-2 border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all hover:border-primary/50"
                     placeholder="Your full name"
                     required
                   />
@@ -181,9 +204,9 @@ export function RegisterPage() {
                 <div>
                   <label
                     htmlFor="email"
-                    className="block text-sm font-medium mb-1 text-gray-700"
+                    className="block text-sm font-semibold mb-2.5 text-foreground"
                   >
-                    Email
+                    Email Address
                   </label>
                   <input
                     id="email"
@@ -191,7 +214,7 @@ export function RegisterPage() {
                     type="email"
                     value={formData.email}
                     onChange={handleChange}
-                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    className="w-full h-12 px-4 rounded-xl border-2 border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all hover:border-primary/50"
                     placeholder="your.email@example.com"
                     required
                   />
@@ -199,7 +222,7 @@ export function RegisterPage() {
                 <div>
                   <label
                     htmlFor="password"
-                    className="block text-sm font-medium mb-1 text-gray-700"
+                    className="block text-sm font-semibold mb-2.5 text-foreground"
                   >
                     Password
                   </label>
@@ -210,8 +233,8 @@ export function RegisterPage() {
                       type={showPassword ? "text" : "password"}
                       value={formData.password}
                       onChange={handleChange}
-                      className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
-                      placeholder="••••••••"
+                      className="w-full h-12 px-4 rounded-xl border-2 border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all hover:border-primary/50"
+                      placeholder="Create a strong password"
                       required
                     />
                     <button
@@ -230,7 +253,7 @@ export function RegisterPage() {
                 <div>
                   <label
                     htmlFor="confirmPassword"
-                    className="block text-sm font-medium mb-1 text-gray-700"
+                    className="block text-sm font-semibold mb-2.5 text-foreground"
                   >
                     Confirm Password
                   </label>
@@ -241,8 +264,8 @@ export function RegisterPage() {
                       type={showPassword ? "text" : "password"}
                       value={formData.confirmPassword}
                       onChange={handleChange}
-                      className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
-                      placeholder="••••••••"
+                      className="w-full h-12 px-4 rounded-xl border-2 border-border bg-background/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-all hover:border-primary/50"
+                      placeholder="Confirm your password"
                       required
                     />
                     <button
@@ -261,25 +284,38 @@ export function RegisterPage() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-primary hover:bg-primary/80 transition-all shadow-md"
+                  className="w-full bg-primary hover:bg-primary/90 text-primary-foreground transition-all shadow-lg hover:shadow-xl hover:scale-[1.02] font-bold py-6 rounded-xl mt-2"
                   disabled={isLoading}
                 >
-                  {isLoading ? "Creating Account..." : "Create Account"}
+                  {isLoading ? (
+                    <span className="flex items-center justify-center">
+                      <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                        <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                        <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                      </svg>
+                      Creating...
+                    </span>
+                  ) : (
+                    <span className="flex items-center justify-center">
+                      Continue
+                      <ChevronRight className="ml-2 h-5 w-5" />
+                    </span>
+                  )}
                 </Button>
               </form>
 
-              <div className="relative flex py-5 items-center">
-                <div className="flex-grow border-t border-gray-200"></div>
-                <span className="flex-shrink mx-4 text-sm text-gray-500">
-                  Or continue with
+              <div className="relative flex py-6 items-center">
+                <div className="flex-grow border-t border-border"></div>
+                <span className="flex-shrink mx-4 text-xs uppercase tracking-wider text-muted-foreground font-semibold">
+                  Or
                 </span>
-                <div className="flex-grow border-t border-gray-200"></div>
+                <div className="flex-grow border-t border-border"></div>
               </div>
 
               <div>
                 <Button
                   variant="outline"
-                  className="w-full border border-gray-200 hover:bg-primary-50/50 shadow-sm"
+                  className="w-full h-12 border-2 border-border hover:bg-muted hover:border-primary/30 transition-all rounded-xl font-semibold"
                 >
                   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
                     <path
@@ -303,14 +339,14 @@ export function RegisterPage() {
                 </Button>
               </div>
 
-              <div className="text-center text-sm">
-                <p className="text-gray-600">
+              <div className="text-center text-sm pt-6">
+                <p className="text-muted-foreground">
                   Already have an account?{" "}
                   <Link
                     to="/auth/login"
-                    className="text-primary hover:underline font-medium"
+                    className="text-primary hover:text-primary/80 font-bold transition-colors underline underline-offset-4 decoration-2"
                   >
-                    Sign in
+                    Sign in here
                   </Link>
                 </p>
               </div>
@@ -319,26 +355,40 @@ export function RegisterPage() {
 
           {step === 2 && (
             <div className="space-y-6">
-              <div className="text-center mb-6">
-                <p className="font-medium text-primary">
-                  Complete your student profile
+              {/* Progress indicator */}
+              <div className="flex items-center justify-center space-x-2 mb-6">
+                <div className="flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold">✓</div>
+                  <span className="ml-2 text-sm font-medium text-muted-foreground">Basic Info</span>
+                </div>
+                <div className="w-12 h-0.5 bg-primary mx-2"></div>
+                <div className="flex items-center">
+                  <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center text-sm font-bold">2</div>
+                  <span className="ml-2 text-sm font-semibold text-primary">Profile</span>
+                </div>
+              </div>
+
+              <div className="text-center space-y-2">
+                <h2 className="text-xl font-bold text-foreground">Complete Your Profile</h2>
+                <p className="text-sm text-muted-foreground">
+                  Help us personalize your experience
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4 max-h-[500px] overflow-y-auto px-1">
+              <form onSubmit={handleSubmit} className="space-y-5 max-h-[450px] overflow-y-auto px-1 scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent hover:scrollbar-thumb-primary/40">
                 <div>
                   <label
                     htmlFor="organization_id"
-                    className="block text-sm font-medium mb-1 text-gray-700"
+                    className="block text-sm font-medium mb-2 text-foreground"
                   >
-                    University / Organization *
+                    University / Organization <span className="text-destructive">*</span>
                   </label>
                   <select
                     id="organization_id"
                     name="organization_id"
                     value={profileData.organization_id}
                     onChange={handleProfileChange}
-                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    className="w-full h-11 px-4 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all"
                     required
                   >
                     <option value="">Select your university</option>
@@ -353,16 +403,16 @@ export function RegisterPage() {
                 <div>
                   <label
                     htmlFor="speciality_id"
-                    className="block text-sm font-medium mb-1 text-gray-700"
+                    className="block text-sm font-medium mb-2 text-foreground"
                   >
-                    Speciality / Major *
+                    Speciality <span className="text-destructive">*</span>
                   </label>
                   <select
                     id="speciality_id"
                     name="speciality_id"
                     value={profileData.speciality_id}
                     onChange={handleProfileChange}
-                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    className="w-full h-11 px-4 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all"
                     required
                   >
                     <option value="">Select your speciality</option>
@@ -379,7 +429,7 @@ export function RegisterPage() {
                 <div>
                   <label
                     htmlFor="cv_url"
-                    className="block text-sm font-medium mb-1 text-gray-700"
+                    className="block text-sm font-medium mb-2 text-foreground"
                   >
                     CV / Resume (Optional)
                   </label>
@@ -387,7 +437,7 @@ export function RegisterPage() {
                     type="file"
                     id="cv_url"
                     accept=".pdf,.doc,.docx"
-                    className="w-full h-10 px-3 py-2 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                    className="w-full h-11 px-4 py-2 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all file:mr-4 file:py-2 file:px-4 file:rounded-md file:border-0 file:text-sm file:font-medium file:bg-primary/10 file:text-primary hover:file:bg-primary/20 cursor-pointer"
                     onChange={(e) => {
                       const file = e.target.files?.[0];
                       if (file) {
@@ -405,16 +455,16 @@ export function RegisterPage() {
                 <div>
                   <label
                     htmlFor="objectives"
-                    className="block text-sm font-medium mb-1 text-gray-700"
+                    className="block text-sm font-medium mb-2 text-foreground"
                   >
-                    Learning Objectives *
+                    Learning Objectives <span className="text-destructive">*</span>
                   </label>
                   <textarea
                     id="objectives"
                     name="objectives"
                     value={profileData.objectives}
                     onChange={handleProfileChange}
-                    className="w-full px-3 py-2 rounded-md border border-primary-200 bg-primary-50/50 text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    className="w-full px-4 py-3 rounded-lg border border-input bg-background text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all resize-none"
                     placeholder="What do you want to achieve? (e.g., Master data structures, Prepare for exams, Learn web development...)"
                     required
                   />
@@ -516,10 +566,10 @@ export function RegisterPage() {
                     ].map((interest) => (
                       <label
                         key={interest}
-                        className={`flex items-center space-x-2 p-2 border rounded-md cursor-pointer transition-all ${
+                        className={`flex items-center space-x-2 p-3 border rounded-lg cursor-pointer transition-all ${
                           profileData.interests.includes(interest)
-                            ? "border-primary bg-primary/5"
-                            : "hover:bg-gray-50"
+                            ? "border-primary bg-primary/10"
+                            : "border-input hover:border-primary hover:bg-accent"
                         }`}
                       >
                         <input
@@ -540,9 +590,9 @@ export function RegisterPage() {
                               });
                             }
                           }}
-                          className="rounded border-primary-300 text-primary focus:ring-primary/50"
+                          className="h-4 w-4 rounded border-input text-primary focus:ring-ring accent-primary"
                         />
-                        <span className="text-sm">{interest}</span>
+                        <span className={`text-sm transition-colors ${profileData.interests.includes(interest) ? "text-primary font-medium" : "text-foreground"}`}>{interest}</span>
                       </label>
                     ))}
                   </div>
@@ -551,16 +601,16 @@ export function RegisterPage() {
                 <div>
                   <label
                     htmlFor="performance_level"
-                    className="block text-sm font-medium mb-1 text-gray-700"
+                    className="block text-sm font-medium mb-2 text-foreground"
                   >
-                    Current Performance Level *
+                    Performance Level <span className="text-destructive">*</span>
                   </label>
                   <select
                     id="performance_level"
                     name="performance_level"
                     value={profileData.performance_level}
                     onChange={handleProfileChange}
-                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    className="w-full h-11 px-4 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all"
                     required
                   >
                     <option value="">Select your level</option>
@@ -582,16 +632,16 @@ export function RegisterPage() {
                 <div>
                   <label
                     htmlFor="preferredLanguage"
-                    className="block text-sm font-medium mb-1 text-gray-700"
+                    className="block text-sm font-medium mb-2 text-foreground"
                   >
-                    Preferred Language *
+                    Preferred Language
                   </label>
                   <select
                     id="preferredLanguage"
                     name="preferredLanguage"
                     value={profileData.preferredLanguage}
                     onChange={handleProfileChange}
-                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    className="w-full h-11 px-4 rounded-lg border border-input bg-background text-sm focus:outline-none focus:ring-2 focus:ring-ring focus:border-primary transition-all"
                     required
                   >
                     <option value="en">English</option>
