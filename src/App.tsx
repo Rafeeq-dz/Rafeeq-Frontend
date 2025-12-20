@@ -28,6 +28,7 @@ import { CoursesPage } from "./pages/dashboard/my-learning/courses/index";
 import { SettingsPage } from "./pages/dashboard/settings/index";
 import { Toaster } from "sonner";
 import { AIChatWidget } from "@/components/ai-chat-widget";
+import { ThemeProvider } from "@/components/theme-provider";
 
 const ClassroomPage = lazy(
   () => import("@/pages/dashboard/my-learning/classrooms/[id].tsx")
@@ -115,10 +116,12 @@ const router = createBrowserRouter(
 
 export default function App() {
   return (
-    <AuthProvider>
-      <Toaster position="top-center" richColors />
-      <RouterProvider router={router} />
-      <AIChatWidget />
-    </AuthProvider>
+    <ThemeProvider defaultTheme="light" storageKey="aspo-theme">
+      <AuthProvider>
+        <Toaster position="top-center" richColors />
+        <RouterProvider router={router} />
+        <AIChatWidget />
+      </AuthProvider>
+    </ThemeProvider>
   );
 }
