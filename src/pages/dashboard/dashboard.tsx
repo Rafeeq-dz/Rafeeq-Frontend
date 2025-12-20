@@ -135,7 +135,7 @@ export function DashboardPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { user } = useAuth();
   const { theme } = useTheme();
-  const userRole = user?.role || "student";
+  const userRole = (user?.role as "student" | "mentor" | undefined) || "student";
   const [courses, setCourses] = useState<Course[]>([]);
   const [newCourse, setNewCourse] = useState<{
     title: string;

@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import "@tldraw/tldraw/tldraw.css";
@@ -26,7 +26,6 @@ import {
   Award,
   ChevronRight,
   Settings,
-  CalendarDays,
   RefreshCw,
 } from "lucide-react";
 import { useTheme } from "@/components/theme-provider";
@@ -46,8 +45,9 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/ui/select";
-import { courseApi } from "@/api/api";
+} from "@/components/ui/select"; 
+import { Course } from "@/types/types";
+import {  courseApi } from "@/api/api";
 import { jsPDF } from "jspdf";
 
 const availableIcons = [
@@ -207,84 +207,13 @@ const quickAccessLinks = [
   { label: "Settings", path: "/dashboard/settings", icon: Settings },
 ];
 
-// Upcoming Events & Tasks
-const upcomingEvents = [
-  {
-    id: 1,
-    type: "exam",
-    title: "Analyse Mathématique Exam",
-    date: "2025-12-23",
-    time: "09:00",
-    priority: "high",
-  },
-  {
-    id: 2,
-    type: "homework",
-    title: "Algorithmique Assignment",
-    date: "2025-12-21",
-    time: "23:59",
-    priority: "medium",
-  },
-  {
-    id: 3,
-    type: "project",
-    title: "Database Project Presentation",
-    date: "2025-12-28",
-    time: "14:00",
-    priority: "high",
-  },
-  {
-    id: 4,
-    type: "homework",
-    title: "Probability Theory Exercises",
-    date: "2025-12-22",
-    time: "18:00",
-    priority: "low",
-  },
-];
-
-// AI-Recommended Modules to Revise
-const revisionRecommendations = [
-  {
-    id: 1,
-    weakTopic: "OSI Model & Network Layers",
-    module: "Réseaux 1",
-    currentMark: 11.5,
-    difficulty: "high",
-    estimatedTime: "3-4 hours",
-    resources: [
-      { title: "OSI Model Complete Guide", type: "video", duration: "45 min", url: "#" },
-      { title: "Network Layers Explained", type: "article", duration: "15 min", url: "#" },
-      { title: "Practice: OSI Model Quiz", type: "exercise", duration: "30 min", url: "#" },
-    ],
-  },
-  {
-    id: 2,
-    weakTopic: "Normal Distribution & Probability",
-    module: "Probabilités et Statistiques",
-    currentMark: 13,
-    difficulty: "medium",
-    estimatedTime: "2-3 hours",
-    resources: [
-      { title: "Understanding Normal Distribution", type: "video", duration: "30 min", url: "#" },
-      { title: "Probability Theory Course", type: "course", duration: "2 hours", url: "#" },
-      { title: "Statistics Practice Problems", type: "exercise", duration: "45 min", url: "#" },
-    ],
-  },
-  {
-    id: 3,
-    weakTopic: "Kirchhoff's Laws & Circuit Analysis",
-    module: "Électricité",
-    currentMark: 10,
-    difficulty: "high",
-    estimatedTime: "4-5 hours",
-    resources: [
-      { title: "Kirchhoff's Laws Tutorial", type: "video", duration: "50 min", url: "#" },
-      { title: "AC Circuit Analysis", type: "video", duration: "40 min", url: "#" },
-      { title: "Circuit Practice Problems", type: "exercise", duration: "1 hour", url: "#" },
-    ],
-  },
-];
+type SearchResult = {
+  title: string;
+  url: string;
+  type: "video" | "article" | "course";
+  source: string;
+  thumbnail?: string;
+};
 
 export function DashboardPage() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -296,14 +225,15 @@ export function DashboardPage() {
     icon?: string;
   }>({ title: "", description: "", icon: "📚" });
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [selectedCourse, setSelectedCourse] = useState<any | null>(null);
   const [isExpanded, setIsExpanded] = useState(false);
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
   const [videoSummary, setVideoSummary] = useState<string | null>(null);
   const [isSummarizing, setIsSummarizing] = useState(false);
-
+  
   // AI Chat Widget States
-  const [chatMessages, setChatMessages] = useState<{ role: string; content: string }[]>([
+  const [chatMessages, setChatMessages] = useState<{role: string; content: string}[]>([
     {
       role: "assistant",
       content: "Hello! I'm Rafeeq AI Assistant. I can help you with:\n\n• Administrative processes (enrollment, certificates, etc.)\n• Course recommendations\n• Study tips and resources\n• Career guidance\n\nHow can I assist you today?"
@@ -311,14 +241,10 @@ export function DashboardPage() {
   ]);
   const [chatInput, setChatInput] = useState("");
   const [isChatLoading, setIsChatLoading] = useState(false);
-
+  
   // Bot Integration States
   const [isBotDialogOpen, setIsBotDialogOpen] = useState(false);
   const [botPlatform, setBotPlatform] = useState<"discord" | "telegram">("discord");
-
-  // Calendar State
-  const [currentDate] = useState(new Date());
-  const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API || "");
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
@@ -334,8 +260,9 @@ export function DashboardPage() {
       }
 
       const prompt = `
-      Summarize this YouTube video with ID ${videoId} about ${selectedCourse?.title || "this topic"
-        }.
+      Summarize this YouTube video with ID ${videoId} about ${
+        selectedCourse?.title || "this topic"
+      }.
       Provide a concise summary that captures the key points and main concepts.
       Format the summary in bullet points for key concepts, don't mention the video ID.
     `;
@@ -365,11 +292,12 @@ export function DashboardPage() {
     }
     setIsLoading(true);
     try {
-      await courseApi.createCourse(newCourse);
+      const createdCourse = await courseApi.createCourse(newCourse);
       setNewCourse({ title: "", description: "", icon: "📚" });
       setIsDialogOpen(false);
     } catch (err) {
-      console.error("Failed to create course:", err);
+      setError("Failed to create course");
+      console.error(err);
     } finally {
       setIsLoading(false);
     }
@@ -377,12 +305,12 @@ export function DashboardPage() {
 
   const handleSendChatMessage = async () => {
     if (!chatInput.trim()) return;
-
+    
     const userMessage = chatInput.trim();
     setChatInput("");
     setChatMessages(prev => [...prev, { role: "user", content: userMessage }]);
     setIsChatLoading(true);
-
+    
     try {
       const prompt = `You are Rafeeq AI Assistant, a helpful educational AI for Algerian students. 
       You specialize in:
@@ -394,16 +322,16 @@ export function DashboardPage() {
       User question: ${userMessage}
       
       Provide a helpful, concise response in a friendly tone.`;
-
+      
       const result = await model.generateContent(prompt);
       const response = result.response.text();
-
+      
       setChatMessages(prev => [...prev, { role: "assistant", content: response }]);
     } catch (error) {
       console.error("Error sending chat message:", error);
-      setChatMessages(prev => [...prev, {
-        role: "assistant",
-        content: "Sorry, I encountered an error. Please try again."
+      setChatMessages(prev => [...prev, { 
+        role: "assistant", 
+        content: "Sorry, I encountered an error. Please try again." 
       }]);
     } finally {
       setIsChatLoading(false);
@@ -431,196 +359,20 @@ export function DashboardPage() {
     doc.save(`${selectedCourse?.title || "video"}-summary.pdf`);
   };
 
-  // Calendar helper functions
-  const getDaysInMonth = (date: Date) => {
-    const year = date.getFullYear();
-    const month = date.getMonth();
-    const firstDay = new Date(year, month, 1);
-    const lastDay = new Date(year, month + 1, 0);
-    const daysInMonth = lastDay.getDate();
-    const startingDayOfWeek = firstDay.getDay();
-
-    return { daysInMonth, startingDayOfWeek };
-  };
-
-  const getEventsForDate = (date: number) => {
-    const currentMonth = currentDate.getMonth() + 1;
-    const currentYear = currentDate.getFullYear();
-    const dateString = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(date).padStart(2, '0')}`;
-    return upcomingEvents.filter(event => event.date === dateString);
-  };
-
-  const isToday = (date: number) => {
-    const today = new Date();
-    return date === today.getDate() &&
-      currentDate.getMonth() === today.getMonth() &&
-      currentDate.getFullYear() === today.getFullYear();
-  };
-
   return (
     <div className="space-y-6">
-      {/* Welcome Header with Calendar Mini View */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        {/* Welcome Section */}
-        <div className="lg:col-span-2">
-          <div className="relative overflow-hidden rounded-lg bg-primary p-8 text-primary-foreground h-full">
-            <div className="relative z-10">
-              <h1 className="text-3xl font-bold mb-2">
-                Welcome back, {user?.name || "Student"}! 
-              </h1>
-              <p className="text-primary-foreground/90 mb-6">
-                Your AI-powered learning companion is ready to assist you
-              </p>
-              {/* Quick Stats */}
-              <div className="grid grid-cols-3 gap-3 mb-4">
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <Target className="h-4 w-4" />
-                    <span className="text-xs opacity-90">This Week</span>
-                  </div>
-                  <p className="text-2xl font-bold">4</p>
-                  <p className="text-xs opacity-75">Tasks Due</p>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <BookOpen className="h-4 w-4" />
-                    <span className="text-xs opacity-90">Active</span>
-                  </div>
-                  <p className="text-2xl font-bold">7</p>
-                  <p className="text-xs opacity-75">Courses</p>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-                  <div className="flex items-center gap-2 mb-1">
-                    <TrendingUp className="h-4 w-4" />
-                    <span className="text-xs opacity-90">Average</span>
-                  </div>
-                  <p className="text-2xl font-bold">14.2</p>
-                  <p className="text-xs opacity-75">Grade</p>
-                </div>
-              </div>
-
-              {/* Additional Insights */}
-              <div className="grid grid-cols-2 gap-3">
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs opacity-90 mb-1">Study Streak</p>
-                      <p className="text-xl font-bold">12 days 🔥</p>
-                    </div>
-                  </div>
-                </div>
-                <div className="bg-white/10 backdrop-blur-sm rounded-lg p-3">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-xs opacity-90 mb-1">AI Generations</p>
-                      <p className="text-xl font-bold">23 this month</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/20 rounded-full blur-3xl"></div>
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/20 rounded-full blur-3xl"></div>
-          </div>
+      {/* Welcome Header with Gradient */}
+      <div className="relative overflow-hidden rounded-lg bg-gradient-to-br from-primary via-primary to-secondary p-8 text-primary-foreground">
+        <div className="relative z-10">
+          <h1 className="text-3xl font-bold mb-2">
+            Welcome back, {user?.name || "Student"}! 👋
+          </h1>
+          <p className="text-primary-foreground/90">
+            Your AI-powered learning companion is ready to assist you
+          </p>
         </div>
-
-        {/* Mini Calendar Preview */}
-        <div className="bg-card border border-border rounded-lg p-4">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-2">
-              <CalendarDays className="h-5 w-5 text-primary" />
-              <h3 className="font-bold text-foreground">
-                {currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })}
-              </h3>
-            </div>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={() => window.location.href = "/dashboard/calendar"}
-              className="text-xs"
-            >
-              Full View
-            </Button>
-          </div>
-
-          {/* Calendar Grid */}
-          <div className="space-y-2">
-            {/* Days of week */}
-            <div className="grid grid-cols-7 gap-1 text-center text-xs font-medium text-muted-foreground mb-2">
-              {['S', 'M', 'T', 'W', 'T', 'F', 'S'].map((day, i) => (
-                <div key={i}>{day}</div>
-              ))}
-            </div>
-
-            {/* Calendar Days */}
-            <div className="grid grid-cols-7 gap-1">
-              {(() => {
-                const { daysInMonth, startingDayOfWeek } = getDaysInMonth(currentDate);
-                const days = [];
-
-                // Empty cells for days before month starts
-                for (let i = 0; i < startingDayOfWeek; i++) {
-                  days.push(<div key={`empty-${i}`} className="aspect-square"></div>);
-                }
-
-                // Actual days
-                for (let day = 1; day <= daysInMonth; day++) {
-                  const events = getEventsForDate(day);
-                  const hasEvents = events.length > 0;
-                  const today = isToday(day);
-
-                  days.push(
-                    <button
-                      key={day}
-                      onClick={() => setSelectedDate(new Date(currentDate.getFullYear(), currentDate.getMonth(), day))}
-                      className={`aspect-square rounded-lg text-xs flex flex-col items-center justify-center transition-colors relative
-                        ${today ? 'bg-primary text-primary-foreground font-bold' : 'hover:bg-muted'}
-                        ${hasEvents && !today ? 'border border-primary/50' : ''}
-                      `}
-                    >
-                      <span>{day}</span>
-                      {hasEvents && (
-                        <div className="flex gap-0.5 absolute bottom-1">
-                          {events.slice(0, 3).map((_, i) => (
-                            <div key={i} className={`w-1 h-1 rounded-full ${today ? 'bg-primary-foreground' : 'bg-primary'}`}></div>
-                          ))}
-                        </div>
-                      )}
-                    </button>
-                  );
-                }
-
-                return days;
-              })()}
-            </div>
-          </div>
-
-          {/* Today's Events */}
-          {selectedDate && (
-            <div className="mt-4 pt-4 border-t border-border">
-              <p className="text-xs font-semibold text-muted-foreground mb-2">
-                {selectedDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} Events
-              </p>
-              {getEventsForDate(selectedDate.getDate()).length > 0 ? (
-                <div className="space-y-2">
-                  {getEventsForDate(selectedDate.getDate()).map(event => (
-                    <div key={event.id} className="text-xs p-2 bg-muted rounded flex items-center gap-2">
-                      <div className={`w-2 h-2 rounded-full ${event.priority === 'high' ? 'bg-red-500' :
-                          event.priority === 'medium' ? 'bg-yellow-500' : 'bg-green-500'
-                        }`}></div>
-                      <div className="flex-1">
-                        <p className="font-medium text-foreground">{event.title}</p>
-                        <p className="text-muted-foreground">{event.time}</p>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              ) : (
-                <p className="text-xs text-muted-foreground">No events scheduled</p>
-              )}
-            </div>
-          )}
-        </div>
+        <div className="absolute top-0 right-0 w-64 h-64 bg-secondary/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 left-0 w-48 h-48 bg-accent/20 rounded-full blur-3xl"></div>
       </div>
 
       {/* Quick Access Bar */}
@@ -746,13 +498,126 @@ export function DashboardPage() {
               })}
             </div>
           </div>
+
+          {/* My Courses Module */}
+          <div className="bg-card border border-border rounded-lg p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <BookOpen className="h-6 w-6 text-primary" />
+                <h2 className="text-xl font-bold text-foreground">My Courses</h2>
+              </div>
+              <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Plus className="w-4 h-4" />
+                    Add Course
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Add New Course</DialogTitle>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="title" className="text-right">
+                        Title
+                      </Label>
+                      <Input
+                        id="title"
+                        value={newCourse.title}
+                        onChange={(e) =>
+                          setNewCourse({ ...newCourse, title: e.target.value })
+                        }
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="description" className="text-right">
+                        Description
+                      </Label>
+                      <Input
+                        id="description"
+                        value={newCourse.description}
+                        onChange={(e) =>
+                          setNewCourse({
+                            ...newCourse,
+                            description: e.target.value,
+                          })
+                        }
+                        className="col-span-3"
+                      />
+                    </div>
+                    <div className="grid grid-cols-4 items-center gap-4">
+                      <Label htmlFor="icon" className="text-right">
+                        Icon
+                      </Label>
+                      <Select
+                        value={newCourse.icon}
+                        onValueChange={(value) =>
+                          setNewCourse({ ...newCourse, icon: value })
+                        }
+                      >
+                        <SelectTrigger className="col-span-3">
+                          <SelectValue placeholder="Select an icon" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {availableIcons.map((icon) => (
+                            <SelectItem key={icon.value} value={icon.value}>
+                              <span className="flex items-center gap-2">
+                                <span>{icon.value}</span>
+                                <span>{icon.label}</span>
+                              </span>
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                    <Button
+                      type="button"
+                      onClick={handleAddCourse}
+                      disabled={isLoading}
+                      className="w-full"
+                    >
+                      {isLoading ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                      ) : (
+                        "Add Course"
+                      )}
+                    </Button>
+                  </div>
+                </DialogContent>
+              </Dialog>
+            </div>
+            
+            {isLoading ? (
+              <div className="flex justify-center py-8">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : (
+              <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
+                {predefinedCourses.map((course, index) => (
+                  <Button
+                    key={index}
+                    variant="outline"
+                    className="flex flex-col items-center justify-center p-4 rounded-lg min-w-[130px] h-[140px] flex-shrink-0 hover:border-primary hover:bg-primary/5 transition-colors"
+                    onClick={() => setSelectedCourse(course)}
+                  >
+                    <span className="text-3xl mb-2">{course.icon || "📚"}</span>
+                    <span className="font-medium text-center text-sm">
+                      {course.title}
+                    </span>
+                  </Button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Column - Chat & Bot Integration */}
         <div className="space-y-6">
           {/* AI Chat Assistant */}
           <div className="bg-card border border-border rounded-lg overflow-hidden">
-            <div className="bg-primary p-4 text-primary-foreground">
+            <div className="bg-gradient-to-r from-primary to-secondary p-4 text-primary-foreground">
               <div className="flex items-center gap-2">
                 <Bot className="h-6 w-6" />
                 <div>
@@ -769,10 +634,11 @@ export function DashboardPage() {
                     className={`flex ${msg.role === "user" ? "justify-end" : "justify-start"}`}
                   >
                     <div
-                      className={`max-w-[85%] rounded-lg p-3 ${msg.role === "user"
+                      className={`max-w-[85%] rounded-lg p-3 ${
+                        msg.role === "user"
                           ? "bg-primary text-primary-foreground"
                           : "bg-muted text-foreground"
-                        }`}
+                      }`}
                     >
                       <p className="text-sm whitespace-pre-wrap">{msg.content}</p>
                     </div>
@@ -876,214 +742,6 @@ export function DashboardPage() {
           </div>
         </div>
       </div>
-      {/* AI-Powered Resource Recommendations - Full Width */}
-      <div className="bg-card border border-border rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <Sparkles className="h-6 w-6 text-secondary" />
-            <h2 className="text-xl font-bold text-foreground">Resources for Your Weak Points</h2>
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            className="text-secondary hover:text-secondary/80"
-          >
-            Refresh <RefreshCw className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
-        <p className="text-sm text-muted-foreground mb-6">
-          Based on your recent exam results, here are personalized resources to improve specific topics
-        </p>
-
-        {/* Grid of Weak Topics */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {revisionRecommendations.map((rec) => (
-            <div
-              key={rec.id}
-              className="border border-border rounded-lg p-5 hover:border-secondary transition-all cursor-pointer group hover:shadow-lg"
-            >
-              {/* Header with Topic and Module */}
-              <div className="flex items-start justify-between mb-3">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <Target className="h-5 w-5 text-secondary" />
-                    <h3 className="font-semibold text-lg text-foreground group-hover:text-secondary transition-colors">
-                      {rec.weakTopic}
-                    </h3>
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    <div className="text-muted-foreground">
-                      From: <span className="font-medium text-foreground">{rec.module}</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <span className="text-muted-foreground">Score:</span>
-                      <span className={`font-semibold ${rec.currentMark < 12 ? 'text-red-500' : 'text-yellow-500'
-                        }`}>
-                        {rec.currentMark}/20
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex items-center gap-2 mb-4">
-                <span className={`text-xs font-medium px-2 py-1 rounded ${rec.difficulty === "high"
-                    ? "bg-red-500/10 text-red-500"
-                    : "bg-yellow-500/10 text-yellow-500"
-                  }`}>
-                  {rec.difficulty === "high" ? "High Priority" : "Medium Priority"}
-                </span>
-                <div className="flex items-center gap-1 text-xs text-muted-foreground">
-                  <Clock className="h-3 w-3" />
-                  <span>{rec.estimatedTime}</span>
-                </div>
-              </div>
-
-              {/* Resources Grid */}
-              <div className="space-y-3">
-                <p className="text-xs font-semibold text-foreground uppercase tracking-wide">Recommended Resources</p>
-                {rec.resources.map((resource, idx) => (
-                  <div
-                    key={idx}
-                    className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg hover:bg-secondary/10 transition-colors group/resource cursor-pointer"
-                    onClick={() => window.open(resource.url, "_blank")}
-                  >
-                    <div className="p-2 bg-secondary/10 rounded-lg flex-shrink-0">
-                      {resource.type === "video" && <FileText className="h-4 w-4 text-secondary" />}
-                      {resource.type === "article" && <BookOpen className="h-4 w-4 text-secondary" />}
-                      {resource.type === "course" && <GraduationCap className="h-4 w-4 text-secondary" />}
-                      {resource.type === "exercise" && <ClipboardList className="h-4 w-4 text-secondary" />}
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="text-sm font-medium text-foreground group-hover/resource:text-secondary transition-colors truncate">
-                        {resource.title}
-                      </p>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="capitalize">{resource.type}</span>
-                        <span>•</span>
-                        <span>{resource.duration}</span>
-                      </div>
-                    </div>
-                    <ExternalLink className="h-4 w-4 text-muted-foreground group-hover/resource:text-secondary transition-colors flex-shrink-0" />
-                  </div>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      {/* My Courses Module */}
-      <div className="bg-card border border-border rounded-lg p-6">
-        <div className="flex items-center justify-between mb-4">
-          <div className="flex items-center gap-2">
-            <BookOpen className="h-6 w-6 text-primary" />
-            <h2 className="text-xl font-bold text-foreground">My Courses</h2>
-          </div>
-          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-            <DialogTrigger asChild>
-              <Button variant="outline" size="sm" className="gap-2">
-                <Plus className="w-4 h-4" />
-                Add Course
-              </Button>
-            </DialogTrigger>
-            <DialogContent>
-              <DialogHeader>
-                <DialogTitle>Add New Course</DialogTitle>
-              </DialogHeader>
-              <div className="grid gap-4 py-4">
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="title" className="text-right">
-                    Title
-                  </Label>
-                  <Input
-                    id="title"
-                    value={newCourse.title}
-                    onChange={(e) =>
-                      setNewCourse({ ...newCourse, title: e.target.value })
-                    }
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="description" className="text-right">
-                    Description
-                  </Label>
-                  <Input
-                    id="description"
-                    value={newCourse.description}
-                    onChange={(e) =>
-                      setNewCourse({
-                        ...newCourse,
-                        description: e.target.value,
-                      })
-                    }
-                    className="col-span-3"
-                  />
-                </div>
-                <div className="grid grid-cols-4 items-center gap-4">
-                  <Label htmlFor="icon" className="text-right">
-                    Icon
-                  </Label>
-                  <Select
-                    value={newCourse.icon}
-                    onValueChange={(value) =>
-                      setNewCourse({ ...newCourse, icon: value })
-                    }
-                  >
-                    <SelectTrigger className="col-span-3">
-                      <SelectValue placeholder="Select an icon" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {availableIcons.map((icon) => (
-                        <SelectItem key={icon.value} value={icon.value}>
-                          <span className="flex items-center gap-2">
-                            <span>{icon.value}</span>
-                            <span>{icon.label}</span>
-                          </span>
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-                <Button
-                  type="button"
-                  onClick={handleAddCourse}
-                  disabled={isLoading}
-                  className="w-full"
-                >
-                  {isLoading ? (
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                  ) : (
-                    "Add Course"
-                  )}
-                </Button>
-              </div>
-            </DialogContent>
-          </Dialog>
-        </div>
-
-        {isLoading ? (
-          <div className="flex justify-center py-8">
-            <Loader2 className="h-8 w-8 animate-spin text-primary" />
-          </div>
-        ) : (
-          <div className="flex gap-3 overflow-x-auto pb-4 scrollbar-thin scrollbar-thumb-border scrollbar-track-transparent">
-            {predefinedCourses.map((course, index) => (
-              <Button
-                key={index}
-                variant="outline"
-                className="flex flex-col items-center justify-center p-4 rounded-lg min-w-[130px] h-[140px] flex-shrink-0 hover:border-primary hover:bg-primary/5 transition-colors"
-                onClick={() => setSelectedCourse(course)}
-              >
-                <span className="text-3xl mb-2">{course.icon || "📚"}</span>
-                <span className="font-medium text-center text-sm">
-                  {course.title}
-                </span>
-              </Button>
-            ))}
-          </div>
-        )}
-      </div>
 
       {/* Drawing Board & Resources Section */}
       <div className="bg-card border border-border rounded-lg p-6">
@@ -1114,16 +772,18 @@ export function DashboardPage() {
             </div>
           ) : (
             <>
-              <div className={`h-[500px] border border-border rounded-lg overflow-hidden transition-all ${isExpanded ? "w-0 hidden" : "w-1/2"
-                }`}>
+              <div className={`h-[500px] border border-border rounded-lg overflow-hidden transition-all ${
+                isExpanded ? "w-0 hidden" : "w-1/2"
+              }`}>
                 <Tldraw
                   persistenceKey={`canvas-${user?._id || "default"}`}
                   className={theme === "dark" ? "tldraw-dark" : "tldraw-light"}
                 />
               </div>
-
-              <div className={`h-[500px] border border-border rounded-lg overflow-auto flex flex-col transition-all ${isExpanded ? "w-full" : "w-1/2"
-                }`}>
+              
+              <div className={`h-[500px] border border-border rounded-lg overflow-auto flex flex-col transition-all ${
+                isExpanded ? "w-full" : "w-1/2"
+              }`}>
                 <div className="flex justify-between items-center p-4 border-b border-border bg-card sticky top-0 z-10">
                   <span className="font-semibold text-foreground">
                     {selectedCourse.title} - Learning Resources
@@ -1202,7 +862,7 @@ export function DashboardPage() {
                           className="border-0"
                         ></iframe>
                       </div>
-
+                      
                       {isSummarizing ? (
                         <div className="p-4 flex items-center justify-center gap-2">
                           <Loader2 className="h-5 w-5 animate-spin text-primary" />
