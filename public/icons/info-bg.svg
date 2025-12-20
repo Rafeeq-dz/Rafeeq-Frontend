@@ -1,0 +1,15 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 165.425 165.425" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Bg">
+<path id="Info Circle" d="M82.7123 2.47322C38.4202 2.47322 2.47309 38.4284 2.47309 82.7124C2.47309 127.012 38.4202 162.952 82.7123 162.952C127.085 162.952 162.951 127.012 162.951 82.7124C162.951 38.4284 127.085 2.47322 82.7123 2.47322V2.47322Z" fill="var(--fill-0, #4096FE)"/>
+<g id="Info Circle_2" opacity="0.5" filter="url(#filter0_f_23_509)">
+<path d="M82.7124 45.1345C61.9694 45.1345 45.1345 61.9732 45.1345 82.7124C45.1345 103.459 61.9694 120.29 82.7124 120.29C103.493 120.29 120.29 103.459 120.29 82.7124C120.29 61.9732 103.493 45.1345 82.7124 45.1345V45.1345Z" fill="var(--fill-0, #0062FF)"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_f_23_509" x="0" y="0" width="165.425" height="165.425" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="22.5673" result="effect1_foregroundBlur_23_509"/>
+</filter>
+</defs>
+</svg>
