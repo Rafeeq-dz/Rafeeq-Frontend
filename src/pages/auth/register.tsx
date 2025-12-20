@@ -5,14 +5,12 @@ import { ChevronRight } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { authApi } from "@/api/api";
 import { toast } from "sonner";
-import { Language, UserRole } from "@/types/types";
 import { Eye, EyeOff } from "lucide-react";
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
   const [step, setStep] = useState(1);
-  const [role, setRole] = useState<UserRole | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [formData, setFormData] = useState({
@@ -22,12 +20,14 @@ export function RegisterPage() {
     confirmPassword: "",
   });
   const [profileData, setProfileData] = useState({
-    location: "",
-    studyLevel: "",
-    bio: "",
-    skills: [] as string[],
-    credentials: "",
-    preferredLanguage: "fr",
+    speciality_id: "",
+    organization_id: "",
+    cv_url: "",
+    objectives: "",
+    learning_style: "" as "visual" | "auditory" | "reading" | "kinesthetic" | "",
+    interests: [] as string[],
+    performance_level: "" as "beginner" | "intermediate" | "advanced" | "expert" | "",
+    preferredLanguage: "fr" as "ar" | "fr" | "en",
   });
 
   const handleChange = (
@@ -48,19 +48,10 @@ export function RegisterPage() {
     setProfileData((prev) => ({ ...prev, [name]: value }));
   };
 
-  const handleSkillChange = (skill: string, checked: boolean) => {
-    setProfileData((prev) => ({
-      ...prev,
-      skills: checked
-        ? [...prev.skills, skill]
-        : prev.skills.filter((s) => s !== skill),
-    }));
-  };
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (step === 2) {
+    if (step === 1) {
       if (formData.password !== formData.confirmPassword) {
         toast.error("Passwords do not match");
         return;
@@ -82,15 +73,17 @@ export function RegisterPage() {
           name: formData.name,
           email: formData.email,
           password: formData.password,
-          ...(role && { role }),
         };
 
         const response = await authApi.register(userData);
 
-        authApi.setAuthToken(response.token);
+        // The token is already set by authApi.register(), but let's ensure it's there
+        if (!authApi.getAuthToken()) {
+          authApi.setAuthToken(response.token);
+        }
 
         login(response.user, response.token);
-        setStep(3);
+        setStep(2);
       } catch (error: any) {
         console.error("Registration error:", error);
         toast.error(error.message || "Registration failed. Please try again.");
@@ -98,17 +91,31 @@ export function RegisterPage() {
       } finally {
         setIsLoading(false);
       }
-    } else if (step === 3) {
+    } else if (step === 2) {
       setIsLoading(true);
 
       try {
+        // Debug: Check if token exists
+        const tokenss = authApi.getAuthToken();
+        console.log("Token before profile update:", tokenss ? "exists" : "missing");
+        
+        // Validate required fields
+        if (!profileData.organization_id || !profileData.speciality_id || 
+            !profileData.objectives || !profileData.learning_style || 
+            profileData.interests.length === 0 || !profileData.performance_level) {
+          toast.error("Please fill in all required fields");
+          return;
+        }
+        
         const updatedUser = await authApi.updateProfile({
-          location: profileData.location,
-          preferredLanguage: profileData.preferredLanguage as Language,
-          bio: profileData.bio,
-          skills: profileData.skills,
-          studyLevel: profileData.studyLevel,
-          credentials: profileData.credentials,
+          speciality_id: profileData.speciality_id,
+          organization_id: profileData.organization_id,
+          cv_url: profileData.cv_url || undefined,
+          objectives: profileData.objectives,
+          learning_style: profileData.learning_style || undefined,
+          interests: profileData.interests,
+          performance_level: profileData.performance_level || undefined,
+          preferredLanguage: profileData.preferredLanguage,
         });
 
         // Update the user in AuthContext
@@ -146,38 +153,6 @@ export function RegisterPage() {
           </div>
 
           {step === 1 && (
-            <div className="space-y-6">
-              <div className="text-center mb-6">
-                <p className="font-medium text-primary">Select your role</p>
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <RoleCard
-                  title="Student"
-                  description="Access learning resources and connect with peers"
-                  selected={role === "student"}
-                  onClick={() => setRole("student")}
-                />
-                <RoleCard
-                  title="Mentor"
-                  description="Provide specialized guidance"
-                  selected={role === "mentor"}
-                  onClick={() => setRole("mentor")}
-                />
-              </div>
-
-              <Button
-                className="w-full bg-primary hover:bg-purple-800 transition-all shadow-md py-6 text-base"
-                disabled={!role}
-                onClick={() => setStep(2)}
-              >
-                Continue
-                <ChevronRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          )}
-
-          {step === 2 && (
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <p className="font-medium text-primary">Create your account</p>
@@ -284,23 +259,13 @@ export function RegisterPage() {
                   </div>
                 </div>
 
-                <div className="flex gap-4">
-                  <Button
-                    type="button"
-                    variant="outline"
-                    onClick={() => setStep(1)}
-                    className="border-primary text-primary hover:bg-purple-50"
-                  >
-                    Back
-                  </Button>
-                  <Button
-                    type="submit"
-                    className="flex-1 bg-primary hover:bg-primary/80 transition-all shadow-md"
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Creating Account..." : "Create Account"}
-                  </Button>
-                </div>
+                <Button
+                  type="submit"
+                  className="w-full bg-primary hover:bg-primary/80 transition-all shadow-md"
+                  disabled={isLoading}
+                >
+                  {isLoading ? "Creating Account..." : "Create Account"}
+                </Button>
               </form>
 
               <div className="relative flex py-5 items-center">
@@ -352,31 +317,266 @@ export function RegisterPage() {
             </div>
           )}
 
-          {step === 3 && (
+          {step === 2 && (
             <div className="space-y-6">
               <div className="text-center mb-6">
                 <p className="font-medium text-primary">
-                  Complete your {role} profile
+                  Complete your student profile
                 </p>
               </div>
 
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="space-y-4 max-h-[500px] overflow-y-auto px-1">
                 <div>
                   <label
-                    htmlFor="location"
+                    htmlFor="organization_id"
                     className="block text-sm font-medium mb-1 text-gray-700"
                   >
-                    Location
+                    University / Organization *
                   </label>
-                  <input
-                    id="location"
-                    name="location"
-                    type="text"
-                    value={profileData.location}
+                  <select
+                    id="organization_id"
+                    name="organization_id"
+                    value={profileData.organization_id}
                     onChange={handleProfileChange}
                     className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
-                    placeholder="e.g., Algiers"
+                    required
+                  >
+                    <option value="">Select your university</option>
+                    <option value="org-1">University of Algiers</option>
+                    <option value="org-2">University of Constantine</option>
+                    <option value="org-3">University of Oran</option>
+                    <option value="org-4">University of Annaba</option>
+                    <option value="org-5">University of Batna</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="speciality_id"
+                    className="block text-sm font-medium mb-1 text-gray-700"
+                  >
+                    Speciality / Major *
+                  </label>
+                  <select
+                    id="speciality_id"
+                    name="speciality_id"
+                    value={profileData.speciality_id}
+                    onChange={handleProfileChange}
+                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    required
+                  >
+                    <option value="">Select your speciality</option>
+                    <option value="spec-1">Computer Science</option>
+                    <option value="spec-2">Mathematics</option>
+                    <option value="spec-3">Physics</option>
+                    <option value="spec-4">Engineering</option>
+                    <option value="spec-5">Medicine</option>
+                    <option value="spec-6">Law</option>
+                    <option value="spec-7">Business</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="cv_url"
+                    className="block text-sm font-medium mb-1 text-gray-700"
+                  >
+                    CV / Resume (Optional)
+                  </label>
+                  <input
+                    type="file"
+                    id="cv_url"
+                    accept=".pdf,.doc,.docx"
+                    className="w-full h-10 px-3 py-2 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all file:mr-4 file:py-1 file:px-2 file:rounded file:border-0 file:text-sm file:bg-primary/10 file:text-primary hover:file:bg-primary/20"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) {
+                        // TODO: Upload file to server and get URL
+                        // For now, just store the filename
+                        setProfileData({ ...profileData, cv_url: file.name });
+                      }
+                    }}
                   />
+                  <p className="text-xs text-gray-500 mt-1">
+                    Upload your CV in PDF or Word format (Max 5MB)
+                  </p>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="objectives"
+                    className="block text-sm font-medium mb-1 text-gray-700"
+                  >
+                    Learning Objectives *
+                  </label>
+                  <textarea
+                    id="objectives"
+                    name="objectives"
+                    value={profileData.objectives}
+                    onChange={handleProfileChange}
+                    className="w-full px-3 py-2 rounded-md border border-primary-200 bg-primary-50/50 text-sm min-h-[80px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    placeholder="What do you want to achieve? (e.g., Master data structures, Prepare for exams, Learn web development...)"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    Learning Style *
+                  </label>
+                  <div className="space-y-2">
+                    {[
+                      {
+                        value: "visual",
+                        label: "Visual",
+                        desc: "Images, diagrams, charts",
+                        icon: "👁️",
+                      },
+                      {
+                        value: "auditory",
+                        label: "Auditory",
+                        desc: "Listening, discussions",
+                        icon: "👂",
+                      },
+                      {
+                        value: "reading",
+                        label: "Reading/Writing",
+                        desc: "Text-based learning",
+                        icon: "📖",
+                      },
+                      {
+                        value: "kinesthetic",
+                        label: "Kinesthetic",
+                        desc: "Hands-on practice",
+                        icon: "✋",
+                      },
+                    ].map((style) => (
+                      <label
+                        key={style.value}
+                        className={`flex items-start space-x-3 p-3 border rounded-md cursor-pointer transition-all ${
+                          profileData.learning_style === style.value
+                            ? "border-primary bg-primary/5 ring-1 ring-primary/20"
+                            : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <input
+                          type="radio"
+                          name="learning_style"
+                          value={style.value}
+                          checked={profileData.learning_style === style.value}
+                          onChange={(e) =>
+                            setProfileData({
+                              ...profileData,
+                              learning_style: e.target.value as
+                                | "visual"
+                                | "auditory"
+                                | "reading"
+                                | "kinesthetic",
+                            })
+                          }
+                          className="mt-1"
+                          required
+                        />
+                        <div className="flex-1">
+                          <div className="flex items-center gap-2">
+                            <span>{style.icon}</span>
+                            <span className="font-medium">{style.label}</span>
+                          </div>
+                          <span className="text-xs text-gray-600">
+                            {style.desc}
+                          </span>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-sm font-medium mb-2 text-gray-700">
+                    Areas of Interest (Select all that apply) *
+                  </label>
+                  <div className="grid grid-cols-2 gap-2 max-h-[200px] overflow-y-auto p-1">
+                    {[
+                      "Programming",
+                      "Mathematics",
+                      "Physics",
+                      "Chemistry",
+                      "Biology",
+                      "History",
+                      "Literature",
+                      "Languages",
+                      "Engineering",
+                      "Data Science",
+                      "Artificial Intelligence",
+                      "Business",
+                      "Medicine",
+                      "Law",
+                      "Architecture",
+                      "Psychology",
+                    ].map((interest) => (
+                      <label
+                        key={interest}
+                        className={`flex items-center space-x-2 p-2 border rounded-md cursor-pointer transition-all ${
+                          profileData.interests.includes(interest)
+                            ? "border-primary bg-primary/5"
+                            : "hover:bg-gray-50"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={profileData.interests.includes(interest)}
+                          onChange={(e) => {
+                            if (e.target.checked) {
+                              setProfileData({
+                                ...profileData,
+                                interests: [...profileData.interests, interest],
+                              });
+                            } else {
+                              setProfileData({
+                                ...profileData,
+                                interests: profileData.interests.filter(
+                                  (i) => i !== interest
+                                ),
+                              });
+                            }
+                          }}
+                          className="rounded border-primary-300 text-primary focus:ring-primary/50"
+                        />
+                        <span className="text-sm">{interest}</span>
+                      </label>
+                    ))}
+                  </div>
+                </div>
+
+                <div>
+                  <label
+                    htmlFor="performance_level"
+                    className="block text-sm font-medium mb-1 text-gray-700"
+                  >
+                    Current Performance Level *
+                  </label>
+                  <select
+                    id="performance_level"
+                    name="performance_level"
+                    value={profileData.performance_level}
+                    onChange={handleProfileChange}
+                    className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    required
+                  >
+                    <option value="">Select your level</option>
+                    <option value="beginner">
+                      Beginner - Just starting my learning journey
+                    </option>
+                    <option value="intermediate">
+                      Intermediate - Have basic knowledge, building expertise
+                    </option>
+                    <option value="advanced">
+                      Advanced - Strong understanding, working on mastery
+                    </option>
+                    <option value="expert">
+                      Expert - Deep expertise in my field
+                    </option>
+                  </select>
                 </div>
 
                 <div>
@@ -384,7 +584,7 @@ export function RegisterPage() {
                     htmlFor="preferredLanguage"
                     className="block text-sm font-medium mb-1 text-gray-700"
                   >
-                    Preferred Language
+                    Preferred Language *
                   </label>
                   <select
                     id="preferredLanguage"
@@ -392,156 +592,19 @@ export function RegisterPage() {
                     value={profileData.preferredLanguage}
                     onChange={handleProfileChange}
                     className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
+                    required
                   >
-                    <option value="fr">French</option>
-                    <option value="ar">Arabic</option>
-                    <option value="tzm">Tamazight</option>
+                    <option value="en">English</option>
+                    <option value="fr">Français</option>
+                    <option value="ar">العربية</option>
                   </select>
                 </div>
 
-                {role === "student" && (
-                  <>
-                    <div>
-                      <label
-                        htmlFor="studyLevel"
-                        className="block text-sm font-medium mb-1 text-gray-700"
-                      >
-                        Study Level
-                      </label>
-                      <select
-                        id="studyLevel"
-                        name="studyLevel"
-                        value={profileData.studyLevel}
-                        onChange={handleProfileChange}
-                        className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
-                      >
-                        <option value="">Select your study level</option>
-                        <option value="primary">Primary School</option>
-                        <option value="middle">Middle School</option>
-                        <option value="secondary">Secondary School</option>
-                        <option value="university">University</option>
-                        <option value="postgraduate">Postgraduate</option>
-                        <option value="professional">Professional</option>
-                      </select>
-                    </div>
-                    <div>
-                      <label className="block text-sm font-medium mb-1 text-gray-700">
-                        Skills (Select your subjects of interest)
-                      </label>
-                      <div className="grid grid-cols-2 gap-2 mt-2">
-                        {[
-                          "Mathematics",
-                          "Physics",
-                          "Chemistry",
-                          "Biology",
-                          "Arabic",
-                          "French",
-                          "English",
-                          "History",
-                        ].map((skill) => (
-                          <label
-                            key={skill}
-                            className="flex items-center space-x-2 text-sm"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={profileData.skills.includes(skill)}
-                              onChange={(e) =>
-                                handleSkillChange(skill, e.target.checked)
-                              }
-                              className="rounded border-primary-300 text-primary focus:ring-primary/50"
-                            />
-                            <span>{skill}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {role === "mentor" && (
-                  <>
-                    <div>
-                      <label className="block text-sm font-medium mb-1 text-gray-700">
-                        Teaching Skills
-                      </label>
-                      <div className="grid grid-cols-2 gap-2 mt-2">
-                        {[
-                          "Mathematics",
-                          "Physics",
-                          "Chemistry",
-                          "Biology",
-                          "Arabic",
-                          "French",
-                          "English",
-                          "History",
-                        ].map((skill) => (
-                          <label
-                            key={skill}
-                            className="flex items-center space-x-2 text-sm"
-                          >
-                            <input
-                              type="checkbox"
-                              checked={profileData.skills.includes(skill)}
-                              onChange={(e) =>
-                                handleSkillChange(skill, e.target.checked)
-                              }
-                              className="rounded border-primary-300 text-primary focus:ring-primary/50"
-                            />
-                            <span>{skill}</span>
-                          </label>
-                        ))}
-                      </div>
-                    </div>
-                    <div>
-                      <label
-                        htmlFor="credentials"
-                        className="block text-sm font-medium mb-1 text-gray-700"
-                      >
-                        Credentials
-                      </label>
-                      <input
-                        id="credentials"
-                        name="credentials"
-                        type="text"
-                        value={profileData.credentials}
-                        onChange={handleProfileChange}
-                        className="w-full h-10 px-3 rounded-md border border-primary-200 bg-primary-50/50 text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
-                        placeholder="e.g., 5 years teaching experience, certified in..."
-                      />
-                    </div>
-                  </>
-                )}
-
-                <div>
-                  <label
-                    htmlFor="bio"
-                    className="block text-sm font-medium mb-1 text-gray-700"
-                  >
-                    Bio{" "}
-                    {role === "mentor"
-                      ? "(Showcase your expertise)"
-                      : "(Optional)"}
-                  </label>
-                  <textarea
-                    id="bio"
-                    name="bio"
-                    value={profileData.bio}
-                    onChange={handleProfileChange}
-                    className="w-full px-3 py-2 rounded-md border border-primary-200 bg-primary-50/50 text-sm min-h-[100px] focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary/40 transition-all"
-                    placeholder={
-                      role === "mentor"
-                        ? "Describe your teaching experience and expertise..."
-                        : "Tell us about yourself or add a quote from an Algerian scholar"
-                    }
-                  ></textarea>
-                </div>
-
-                <div className="flex gap-4">
+                <div className="flex gap-4 sticky bottom-0 bg-background pt-4">
                   <Button
                     type="button"
                     variant="outline"
-                    onClick={() => setStep(2)}
+                    onClick={() => setStep(1)}
                     className="border-primary text-primary hover:bg-purple-50"
                   >
                     Back
@@ -563,28 +626,5 @@ export function RegisterPage() {
         </div>
       </div>
     </div>
-  );
-}
-
-interface RoleCardProps {
-  title: string;
-  description: string;
-  selected: boolean;
-  onClick: () => void;
-}
-
-function RoleCard({ title, description, selected, onClick }: RoleCardProps) {
-  return (
-    <button
-      className={`p-4 rounded-lg border text-left transition-all ${
-        selected
-          ? "border-primary bg-primary/5 ring-2 ring-primary/10 shadow-md"
-          : "hover:border-primary/50 hover:bg-purple-50/50"
-      }`}
-      onClick={onClick}
-    >
-      <h3 className="font-medium text-primary">{title}</h3>
-      <p className="text-sm text-gray-600 mt-1">{description}</p>
-    </button>
   );
 }

@@ -106,12 +106,14 @@ export const authApi = {
   },
 
   updateProfile: async (profileData: {
-    location?: string;
+    speciality_id?: string;
+    organization_id?: string;
+    cv_url?: string;
+    objectives?: string;
+    learning_style?: "visual" | "auditory" | "reading" | "kinesthetic";
+    interests?: string[];
+    performance_level?: "beginner" | "intermediate" | "advanced" | "expert";
     preferredLanguage?: Language;
-    bio?: string;
-    skills?: string[];
-    studyLevel?: string;
-    credentials?: string;
     avatar?: string;
   }): Promise<UserProfile> => {
     const token = authApi.getAuthToken();

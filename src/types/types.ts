@@ -8,8 +8,10 @@ export interface ApiResponse<T> {
 }
 
 
-export type UserRole = "student" | "mentor";
-export type Language = "ar" | "fr" | "tzm";
+export type UserRole = "student";
+export type Language = "ar" | "fr" | "en";
+export type LearningStyle = "visual" | "auditory" | "reading" | "kinesthetic" | "";
+export type PerformanceLevel = "beginner" | "intermediate" | "advanced" | "expert" | "";
 
 export interface UserProfile {
   _id: string;
@@ -17,13 +19,15 @@ export interface UserProfile {
   avatar?: string;
   email: string;
   role: UserRole;
-  skills: string[];
-  location?: string;
-  studyLevel?: string;
-  bio?: string;
+  speciality_id?: string;
+  organization_id?: string;
+  cv_url?: string;
+  objectives?: string;
+  learning_style?: LearningStyle;
+  interests: string[];
+  performance_level?: PerformanceLevel;
   knowledgePoints: number;
   preferredLanguage: Language;
-  credentials?: string;
   createdAt: Date;
   courses?: string[]; 
 }

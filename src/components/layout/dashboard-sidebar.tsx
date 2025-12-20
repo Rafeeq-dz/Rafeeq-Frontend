@@ -4,11 +4,17 @@ import {
   BookOpen,
   Users,
   Briefcase,
-  Brain,
   Home,
   Settings,
   LogOut,
+  FileText,
+  Calendar,
+  Sparkles,
+  Bot,
+  MessageSquare,
+  Target,
   BookOpenText,
+  GraduationCap,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { toast } from "sonner";
@@ -18,42 +24,34 @@ type SidebarItem = {
   label: string;
   href: string;
   icon: React.ReactNode;
+  children?: SidebarItem[];
 };
 
-const commonSidebarItems: SidebarItem[] = [
-  { label: "Dashboard", href: "/dashboard", icon: <Home size={20} /> },
+const sidebarItems: SidebarItem[] = [
+  { label: "Overview", href: "/dashboard/overview", icon: <Home size={20} /> },
+  { label: "Calendar", href: "/dashboard/calendar", icon: <Calendar size={20} /> },
   {
-    label: "Workspace",
-    href: "/dashboard/workspace",
-    icon: <Briefcase size={20} />,
+    label: "🤖 AI Hub",
+    href: "/dashboard/ai-hub",
+    icon: <Sparkles size={20} />,
+    children: [
+      { label: "Content Generator", href: "/dashboard/ai-hub/content-generator", icon: <Sparkles size={18} /> },
+      { label: "AI Tutor", href: "/dashboard/ai-hub/ai-tutor", icon: <Bot size={18} /> },
+      { label: "Opportunities", href: "/dashboard/ai-hub/opportunities", icon: <Target size={18} /> },
+      { label: "Discord Sync", href: "/dashboard/ai-hub/discord-sync", icon: <MessageSquare size={18} /> },
+    ],
   },
   {
-    label: "Resources Library",
-    href: "/dashboard/resources",
-    icon: <BookOpenText size={20} />,
-  },
-  {
-    label: "Classrooms",
-    href: "/dashboard/classrooms",
-    icon: <BookOpen size={20} />,
-  },
-  {
-    label: "Study Groups",
-    href: "/dashboard/study-groups",
-    icon: <Users size={20} />,
-  },
-  {
-    label: "Exercises",
-    href: "/dashboard/ai-tools",
-    icon: <Brain size={20} />,
-  },
-];
-
-const mentorSidebarItems: SidebarItem[] = [
-  {
-    label: "Tutoring Dashboard",
-    href: "/dashboard/mentor-dashboard",
-    icon: <Home size={20} />,
+    label: "My Learning",
+    href: "/dashboard/my-learning",
+    icon: <GraduationCap size={20} />,
+    children: [
+      { label: "Courses", href: "/dashboard/my-learning/courses", icon: <BookOpenText size={18} /> },
+      { label: "Classrooms", href: "/dashboard/my-learning/classrooms", icon: <BookOpen size={18} /> },
+      { label: "Study Groups", href: "/dashboard/my-learning/study-groups", icon: <Users size={18} /> },
+      { label: "Resources", href: "/dashboard/my-learning/resources", icon: <FileText size={18} /> },
+      { label: "Workspace", href: "/dashboard/my-learning/workspace", icon: <Briefcase size={18} /> },
+    ],
   },
 ]
 
@@ -63,26 +61,20 @@ export function DashboardSidebar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const userRole = user?.role || "Student";  
-   const handleLogout = () => {
+  
+  const handleLogout = () => {
     logout();
     toast.success("Logged out successfully");
     navigate("/auth/login");
   };
 
-  const getSidebarItems = () => {
-    const items = [...commonSidebarItems];
-
-    if (userRole === "student") {
-           return items;
-    } else if (userRole === "mentor") {
-      items.push(...mentorSidebarItems);
+  const isActiveRoute = (href: string, hasChildren?: boolean) => {
+    if (hasChildren) {
+      // For parent items, check if any child is active
+      return pathname.startsWith(href);
     }
-
-    return items;
+    return pathname === href || (href === "/dashboard/overview" && pathname === "/dashboard");
   };
-
-  const displayedSidebarItems = getSidebarItems();
 
   return (
     <aside className="w-64 border-r bg-background h-screen sticky top-0 overflow-y-auto py-6 px-3 flex flex-col">
@@ -94,27 +86,52 @@ export function DashboardSidebar() {
       </div>
 
       <nav className="space-y-1 flex-1">
-        {displayedSidebarItems.map((item) => {
-          const isActive = pathname === item.href;
+        {sidebarItems.map((item) => {
+          const isActive = isActiveRoute(item.href, !!item.children);
 
           return (
-            <Link
-              key={item.href}
-              to={item.href}
-              className={cn(
-                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors relative", 
-                isActive
-                  ? "bg-primary/10 text-primary"
-                  : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
-                "after:content-[''] after:absolute after:left-0 after:top-1/2 after:-translate-y-1/2 after:h-8 after:rounded-md after:w-[3px] after:bg-primary after:transition-opacity",
-                isActive
-                  ? "after:opacity-100"
-                  : "after:opacity-0 hover:after:opacity-100"
+            <div key={item.href}>
+              <Link
+                to={item.href}
+                className={cn(
+                  "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors relative", 
+                  isActive
+                    ? "bg-primary/10 text-primary"
+                    : "text-muted-foreground hover:bg-accent hover:text-accent-foreground",
+                  "after:content-[''] after:absolute after:left-0 after:top-1/2 after:-translate-y-1/2 after:h-8 after:rounded-md after:w-[3px] after:bg-primary after:transition-opacity",
+                  isActive
+                    ? "after:opacity-100"
+                    : "after:opacity-0 hover:after:opacity-100"
+                )}
+              >
+                {item.icon}
+                {item.label}
+              </Link>
+              
+              {/* Render children if they exist */}
+              {item.children && (
+                <div className="ml-6 mt-1 space-y-1">
+                  {item.children.map((child) => {
+                    const isChildActive = pathname === child.href;
+                    return (
+                      <Link
+                        key={child.href}
+                        to={child.href}
+                        className={cn(
+                          "flex items-center gap-2 rounded-md px-3 py-1.5 text-sm transition-colors",
+                          isChildActive
+                            ? "bg-primary/10 text-primary font-medium"
+                            : "text-muted-foreground hover:bg-accent hover:text-accent-foreground"
+                        )}
+                      >
+                        {child.icon}
+                        {child.label}
+                      </Link>
+                    );
+                  })}
+                </div>
               )}
-            >
-              {item.icon}
-              {item.label}
-            </Link>
+            </div>
           );
         })}
       </nav>
