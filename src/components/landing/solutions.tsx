@@ -2,7 +2,7 @@ import React from 'react'
 
 const Solutions = () => {
   return (
-    <section className='py-20 px-30'>
+    <section className='py-20 px-30 max-md:hidden'>
         <div className='flex flex-col gap-4 rounded-[32px] pt-15 bg-black w-full'>
             <div className='h-[106px] w-full'>
                 <img

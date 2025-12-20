@@ -81,7 +81,7 @@ const CalendarIcon = () => (
 
 const Problems = () => {
   return (
-    <div className='bg-white border border-[#e4e4e7] flex flex-col items-start rounded-2xl shadow-[0px_0px_31.2px_0px_rgba(0,0,0,0.04)] w-full'>
+    <div className='bg-white border max-md:hidden border-[#e4e4e7] flex flex-col items-start rounded-2xl shadow-[0px_0px_31.2px_0px_rgba(0,0,0,0.04)] w-full'>
       {/* Problem 1: Scattered Information */}
       <div className='border-b border-[#e4e4e7] h-[177px] relative w-full'>
         <div className='overflow-hidden relative size-full'>
