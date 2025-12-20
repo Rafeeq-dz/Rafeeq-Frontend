@@ -1,0 +1,19 @@
+<svg preserveAspectRatio="none" width="100%" height="100%" overflow="visible" style="display: block;" viewBox="0 0 256.595 253.238" fill="none" xmlns="http://www.w3.org/2000/svg">
+<g id="Bg">
+<path id="Fill 3" d="M148.567 39.1307L75.2561 58.3735C46.5912 65.8974 32.7045 90.6717 40.7251 119.994L59.2359 187.667C67.2338 216.907 91.9052 231.56 120.57 224.036L193.881 204.794C222.546 197.27 236.348 172.518 228.35 143.278L209.839 75.6048C201.819 46.2825 177.232 31.6067 148.567 39.1307" fill="url(#paint0_linear_23_533)"/>
+<g id="Rectangle 1034" opacity="0.5" filter="url(#filter0_f_23_533)">
+<rect x="85.3325" y="197.679" width="115.037" height="119.786" rx="34.2604" transform="rotate(-105 85.3325 197.679)" fill="var(--fill-0, #8237FF)"/>
+</g>
+</g>
+<defs>
+<filter id="filter0_f_23_533" x="-1.90735e-06" y="1.90735e-06" width="256.595" height="253.238" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+<feFlood flood-opacity="0" result="BackgroundImageFix"/>
+<feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+<feGaussianBlur stdDeviation="31.625" result="effect1_foregroundBlur_23_533"/>
+</filter>
+<linearGradient id="paint0_linear_23_533" x1="111.869" y1="48.7632" x2="155.471" y2="214.876" gradientUnits="userSpaceOnUse">
+<stop stop-color="#BC94FF"/>
+<stop offset="1" stop-color="#9F66FF"/>
+</linearGradient>
+</defs>
+</svg>
