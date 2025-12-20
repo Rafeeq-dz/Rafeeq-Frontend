@@ -7,11 +7,14 @@ import { toast } from "sonner";
 import { useAuth } from "@/contexts/auth-context";
 import { authApi } from "@/api/api";
 import { AuthRedirect } from "@/components/auth/auth-redirect";
-import logo from "@/assets/logo.svg"
+import { useTheme } from "@/components/theme-provider";
+import logo from "@/assets/logo.svg";
+import logoWhite from "@/assets/logo-white.svg"
 
 export function LoginPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { theme } = useTheme();
   const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     email: "",
@@ -54,7 +57,7 @@ export function LoginPage() {
           <div className="w-full max-w-md space-y-8 bg-card p-10 rounded-3xl border border-border shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-sm">
             {/* Logo */}
             <div className="flex justify-center">
-              <img src={logo} alt="Aspo Logo" className="h-12 w-auto" />
+              <img src={theme === 'dark' ? logoWhite : logo} alt="Rafeeq Logo" className="w-[147px] h-auto" />
             </div>
 
             {/* Header */}
@@ -201,7 +204,7 @@ export function LoginPage() {
         <footer className="border-t border-border/50 py-6 relative z-10">
           <div className="container mx-auto px-4">
             <p className="text-xs text-muted-foreground text-center">
-              © {new Date().getFullYear()} Aspo. Empowering Algerian students. All rights reserved.
+              © {new Date().getFullYear()} Rafeeq. Empowering Algerian students. All rights reserved.
             </p>
           </div>
         </footer>

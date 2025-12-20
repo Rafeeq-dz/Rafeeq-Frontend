@@ -115,7 +115,7 @@ const router = createBrowserRouter(
 
 export default function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="aspo-theme">
+    <ThemeProvider defaultTheme="light" storageKey="Rafeeq-theme">
       <AuthProvider>
         <Toaster position="top-center" richColors />
         <RouterProvider router={router} />

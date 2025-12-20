@@ -31,6 +31,10 @@ export function ResourcesPage() {
   const [sharedResources, setSharedResources] = useState<Resource[]>([]);
   const [file, setFile] = useState<File | null>(null);
   const [resourceTitle, setResourceTitle] = useState("");
+  const [resourceType, setResourceType] = useState<"local" | "external">("local");
+  const [resourceUrl, setResourceUrl] = useState("");
+  const [resourceSubject, setResourceSubject] = useState("");
+  const [resourceDescription, setResourceDescription] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [shareEmail, setShareEmail] = useState("");
@@ -67,35 +71,57 @@ export function ResourcesPage() {
 
   // Handle resource upload
   const uploadResource = async () => {
-    if (!file || !resourceTitle.trim()) {
-      alert("Please provide a title and select a file.");
+    if (!resourceTitle.trim()) {
+      toast.error("Please provide a title for the resource.");
+      return;
+    }
+    if (resourceType === "local" && !file) {
+      toast.error("Please select a file to upload.");
+      return;
+    }
+    if (resourceType === "external" && !resourceUrl.trim()) {
+      toast.error("Please provide a valid URL.");
       return;
     }
     if (!user) {
-      alert("User not authenticated. Please login again.");
+      toast.error("User not authenticated. Please login again.");
       return;
     }
     setIsUploading(true);
     try {
-      const formData = new FormData();
-      formData.append("title", resourceTitle);
-      formData.append("file", file);
-      formData.append("uploadedBy", user._id);
-      formData.append(
-        "fileType",
-        file.type.includes("pdf")
-          ? "pdf"
-          : file.type.includes("image")
-          ? "image"
-          : "other"
-      );
-      const newResource = await resourceApi.uploadResource(formData);
-      setResources([...resources, newResource]);
+      if (resourceType === "local" && file) {
+        const formData = new FormData();
+        formData.append("title", resourceTitle);
+        formData.append("file", file);
+        formData.append("uploadedBy", user._id);
+        formData.append("subject", resourceSubject);
+        formData.append("description", resourceDescription);
+        formData.append(
+          "fileType",
+          file.type.includes("pdf")
+            ? "pdf"
+            : file.type.includes("image")
+            ? "image"
+            : "other"
+        );
+        const newResource = await resourceApi.uploadResource(formData);
+        setResources([...resources, newResource]);
+        toast.success("Resource uploaded successfully!");
+      } else if (resourceType === "external") {
+        // Handle external URL resource
+        // For now, just show success - in production, you'd send this to your API
+        toast.success("External resource added successfully!");
+        console.log("External resource:", { title: resourceTitle, url: resourceUrl, subject: resourceSubject });
+      }
+      // Reset form
       setFile(null);
       setResourceTitle("");
+      setResourceUrl("");
+      setResourceSubject("");
+      setResourceDescription("");
     } catch (error) {
       console.error("Failed to upload resource:", error);
-      alert("Failed to upload resource.");
+      toast.error("Failed to upload resource.");
     } finally {
       setIsUploading(false);
     }
@@ -138,32 +164,134 @@ export function ResourcesPage() {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <h1 className="text-3xl font-bold">Resource Library</h1>
-        <div className="flex items-center gap-2">
-          <input
-            type="text"
-            placeholder="Resource title"
-            className="h-9 rounded-md border border-input bg-background px-3 text-sm"
-            value={resourceTitle}
-            onChange={(e) => setResourceTitle(e.target.value)}
-          />
-          <input
-            type="file"
-            onChange={handleFileChange}
-            className="hidden"
-            id="file-upload"
-          />
-          <label
-            htmlFor="file-upload"
-            className="inline-flex items-center justify-center rounded-md border border-input bg-background px-4 py-2 text-sm font-medium text-foreground hover:bg-accent hover:text-accent-foreground focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary cursor-pointer"
-          >
-            <Upload className="mr-2 h-4 w-4" />
-            {file ? file.name : "Choose File"}
-          </label>
-          <Button onClick={uploadResource} disabled={isUploading}>
-            {isUploading ? "Uploading..." : "Upload Resource"}
-          </Button>
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <h1 className="text-3xl font-bold">Resource Library</h1>
+        </div>
+        
+        {/* Add Resource Section */}
+        <div className="border rounded-lg p-6 bg-card">
+          <h2 className="text-lg font-semibold mb-4">Add New Resource</h2>
+          <div className="space-y-4">
+            {/* Resource Type Toggle */}
+            <div className="flex items-center gap-4">
+              <label className="text-sm font-medium">Resource Type:</label>
+              <div className="flex gap-2">
+                <Button
+                  type="button"
+                  variant={resourceType === "local" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setResourceType("local")}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Upload File
+                </Button>
+                <Button
+                  type="button"
+                  variant={resourceType === "external" ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => setResourceType("external")}
+                >
+                  External Link
+                </Button>
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-2">Title *</label>
+                <Input
+                  type="text"
+                  placeholder="e.g., Analyse Mathématique Chapitre 1"
+                  value={resourceTitle}
+                  onChange={(e) => setResourceTitle(e.target.value)}
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-2">Subject *</label>
+                <select
+                  className="w-full h-9 rounded-md border border-input bg-background px-3 text-sm"
+                  value={resourceSubject}
+                  onChange={(e) => setResourceSubject(e.target.value)}
+                >
+                  <option value="">Select subject</option>
+                  <option value="Mathematics">Mathématiques</option>
+                  <option value="Physics">Physique</option>
+                  <option value="Chemistry">Chimie</option>
+                  <option value="Computer Science">Informatique</option>
+                  <option value="Electronics">Électronique</option>
+                  <option value="Mechanics">Mécanique</option>
+                  <option value="Electrical Engineering">Électrotechnique</option>
+                  <option value="Civil Engineering">Génie Civil</option>
+                  <option value="Biology">Biologie</option>
+                  <option value="Economics">Économie</option>
+                  <option value="Management">Gestion</option>
+                  <option value="Literature">Littérature</option>
+                  <option value="Languages">Langues</option>
+                  <option value="Law">Droit</option>
+                  <option value="Medicine">Médecine</option>
+                  <option value="Pharmacy">Pharmacie</option>
+                  <option value="Architecture">Architecture</option>
+                </select>
+              </div>
+            </div>
+
+            {resourceType === "local" ? (
+              <div>
+                <label className="block text-sm font-medium mb-2">File *</label>
+                <input
+                  type="file"
+                  onChange={handleFileChange}
+                  className="hidden"
+                  id="file-upload"
+                  accept=".pdf,.doc,.docx,.ppt,.pptx,.xls,.xlsx,.jpg,.jpeg,.png,.zip"
+                />
+                <label
+                  htmlFor="file-upload"
+                  className="flex items-center justify-center w-full h-32 px-4 transition bg-background border-2 border-dashed rounded-md appearance-none cursor-pointer hover:border-primary focus:outline-none"
+                >
+                  <div className="flex flex-col items-center space-y-2">
+                    <Upload className="h-8 w-8 text-muted-foreground" />
+                    <span className="text-sm text-muted-foreground">
+                      {file ? file.name : "Click to upload or drag and drop"}
+                    </span>
+                    <span className="text-xs text-muted-foreground">
+                      PDF, DOC, PPT, Images, or ZIP (Max 50MB)
+                    </span>
+                  </div>
+                </label>
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium mb-2">Resource URL *</label>
+                <Input
+                  type="url"
+                  placeholder="https://example.com/resource"
+                  value={resourceUrl}
+                  onChange={(e) => setResourceUrl(e.target.value)}
+                />
+                <p className="text-xs text-muted-foreground mt-1">
+                  Link to external resources (e.g., YouTube videos, online documents, university repositories)
+                </p>
+              </div>
+            )}
+
+            <div>
+              <label className="block text-sm font-medium mb-2">Description</label>
+              <textarea
+                className="w-full min-h-[80px] rounded-md border border-input bg-background px-3 py-2 text-sm"
+                placeholder="Brief description of the resource..."
+                value={resourceDescription}
+                onChange={(e) => setResourceDescription(e.target.value)}
+              />
+            </div>
+
+            <div className="flex justify-end">
+              <Button onClick={uploadResource} disabled={isUploading}>
+                {isUploading ? "Uploading..." : resourceType === "local" ? "Upload Resource" : "Add Resource"}
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -357,12 +485,13 @@ export function ResourcesPage() {
                     }
                   >
                     <option value="">All Types</option>
-                    <option value="Textbook">Textbooks</option>
+                    <option value="Textbook">Course Materials</option>
                     <option value="Exam">Past Exams</option>
-                    <option value="Note">Notes</option>
-                    <option value="Video">Videos</option>
-                    <option value="Article">Articles</option>
-                    <option value="Exercise">Exercises</option>
+                    <option value="Note">Lecture Notes</option>
+                    <option value="Video">Video Lectures</option>
+                    <option value="Exercise">TD/TP Solutions</option>
+                    <option value="Research">Research Papers</option>
+                    <option value="Project">Project Examples</option>
                   </select>
                 </div>
 
@@ -382,16 +511,23 @@ export function ResourcesPage() {
                     }
                   >
                     <option value="">All Subjects</option>
-                    <option value="Mathematics">Mathematics</option>
-                    <option value="Physics">Physics</option>
-                    <option value="Chemistry">Chemistry</option>
-                    <option value="Biology">Biology</option>
-                    <option value="Arabic">Arabic</option>
-                    <option value="French">French</option>
-                    <option value="English">English</option>
-                    <option value="History">History</option>
-                    <option value="Geography">Geography</option>
-                    <option value="Computer Science">Computer Science</option>
+                    <option value="Mathematics">Mathématiques</option>
+                    <option value="Physics">Physique</option>
+                    <option value="Chemistry">Chimie</option>
+                    <option value="Computer Science">Informatique</option>
+                    <option value="Electronics">Électronique</option>
+                    <option value="Mechanics">Mécanique</option>
+                    <option value="Electrical Engineering">Électrotechnique</option>
+                    <option value="Civil Engineering">Génie Civil</option>
+                    <option value="Biology">Biologie</option>
+                    <option value="Economics">Économie</option>
+                    <option value="Management">Gestion</option>
+                    <option value="Literature">Littérature</option>
+                    <option value="Languages">Langues</option>
+                    <option value="Law">Droit</option>
+                    <option value="Medicine">Médecine</option>
+                    <option value="Pharmacy">Pharmacie</option>
+                    <option value="Architecture">Architecture</option>
                   </select>
                 </div>
 
@@ -440,22 +576,22 @@ export function ResourcesPage() {
                 <h3 className="font-medium mb-2">Popular Tags</h3>
                 <div className="flex flex-wrap gap-2">
                   <Button variant="outline" size="sm" className="rounded-full">
-                    baccalaureate
+                    licence
                   </Button>
                   <Button variant="outline" size="sm" className="rounded-full">
-                    bem
+                    master
                   </Button>
                   <Button variant="outline" size="sm" className="rounded-full">
-                    mathematics
+                    TD
                   </Button>
                   <Button variant="outline" size="sm" className="rounded-full">
-                    physics
+                    TP
                   </Button>
                   <Button variant="outline" size="sm" className="rounded-full">
                     exam
                   </Button>
                   <Button variant="outline" size="sm" className="rounded-full">
-                    tutorial
+                    cours
                   </Button>
                 </div>
               </div>

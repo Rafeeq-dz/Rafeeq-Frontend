@@ -18,7 +18,9 @@ import {
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { toast } from "sonner";
-import logo from "@/assets/logo.svg"
+import { useTheme } from "@/components/theme-provider";
+import logo from "@/assets/logo.svg";
+import logoWhite from "@/assets/logo-white.svg"
 
 type SidebarItem = {
   label: string;
@@ -36,7 +38,7 @@ const sidebarItems: SidebarItem[] = [
     icon: <Sparkles size={20} />,
     children: [
       { label: "AI Tools", href: "/dashboard/ai-hub/ai-tools", icon: <Bot size={18} /> },
-      { label: "Opportunities", href: "/dashboard/ai-hub/opportunities", icon: <Target size={18} /> },
+      { label: "Career Vision", href: "/dashboard/ai-hub/opportunities", icon: <Target size={18} /> },
       { label: "Discord Sync", href: "/dashboard/ai-hub/discord-sync", icon: <MessageSquare size={18} /> },
     ],
   },
@@ -60,6 +62,7 @@ export function DashboardSidebar() {
   const { pathname } = useLocation();
   const navigate = useNavigate();
   const { user, logout } = useAuth();
+  const { theme } = useTheme();
   
   const handleLogout = () => {
     logout();
@@ -79,7 +82,7 @@ export function DashboardSidebar() {
     <aside className="w-64 border-r bg-background h-screen sticky top-0 overflow-y-auto py-6 px-3 flex flex-col">
       <div className="mb-6 px-3">
         <Link to="/dashboard" className="flex items-center">
-          <img src={logo} alt="Aspo Logo" className=" mr-2" />
+          <img src={theme === 'dark' ? logoWhite : logo} alt="Rafeeq Logo" className="w-[147px] h-auto mr-2" />
         </Link>
       </div>
 

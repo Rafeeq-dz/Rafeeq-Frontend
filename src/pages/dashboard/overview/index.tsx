@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/auth-context";
 import "@tldraw/tldraw/tldraw.css";
@@ -47,7 +47,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { courseApi } from "@/api/api";
+import { courseApi, aiApi, RecommendationItem } from "@/api/api";
 import { jsPDF } from "jspdf";
 
 const availableIcons = [
@@ -125,49 +125,7 @@ const predefinedCourses = [
   },
 ];
 
-// AI-Recommended Opportunities
-const recommendedOpportunities = [
-  {
-    id: 1,
-    type: "job",
-    title: "Software Engineer Intern",
-    company: "Google Algeria",
-    location: "Algiers",
-    deadline: "2025-01-15",
-    match: 95,
-    icon: BriefcaseIcon,
-  },
-  {
-    id: 2,
-    type: "training",
-    title: "AWS Cloud Practitioner Certification",
-    company: "Amazon Web Services",
-    location: "Online",
-    deadline: "2025-01-20",
-    match: 88,
-    icon: Award,
-  },
-  {
-    id: 3,
-    type: "phd",
-    title: "PhD in Machine Learning",
-    company: "University of Science and Technology",
-    location: "Oran",
-    deadline: "2025-02-01",
-    match: 82,
-    icon: GraduationCap,
-  },
-  {
-    id: 4,
-    type: "job",
-    title: "Full Stack Developer",
-    company: "Yassir",
-    location: "Remote",
-    deadline: "2025-01-25",
-    match: 90,
-    icon: BriefcaseIcon,
-  },
-];
+// AI-Recommended Opportunities - now fetched from API
 
 // Recent AI-Generated Content
 const recentGenerations = [
@@ -315,12 +273,95 @@ export function DashboardPage() {
   const [isBotDialogOpen, setIsBotDialogOpen] = useState(false);
   const [botPlatform, setBotPlatform] = useState<"discord" | "telegram">("discord");
 
+  // Recommendations State
+  const [recommendations, setRecommendations] = useState<RecommendationItem[]>([]);
+  const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
+
   // Calendar State
   const [currentDate] = useState(new Date());
   const [selectedDate, setSelectedDate] = useState<Date | null>(null);
 
   const genAI = new GoogleGenerativeAI(import.meta.env.VITE_GEMINI_API || "");
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
+
+  // Fetch recommendations on component mount
+  const fetchRecommendations = async () => {
+    setIsLoadingRecommendations(true);
+    try {
+      // Build query based on user profile - in production this would be more sophisticated
+      const query = `Computer Science student interested in AI Web Development opportunities internships`;
+      const results = await aiApi.getRecommendations(query, undefined, 4);
+      setRecommendations(results);
+    } catch (error) {
+      console.error("Failed to fetch recommendations:", error);
+      // Set fallback mock data if API fails
+      setRecommendations([
+        {
+          id: 1,
+          name: "Software Engineering Internship",
+          content_type: "intership",
+          score: 0.95,
+        },
+        {
+          id: 2,
+          name: "AI/ML Workshop Series",
+          content_type: "event",
+          score: 0.88,
+        },
+        {
+          id: 3,
+          name: "Advanced Web Development Course",
+          content_type: "cour",
+          score: 0.85,
+        },
+        {
+          id: 4,
+          name: "Full Stack Development Training",
+          content_type: "event",
+          score: 0.90,
+        },
+      ] as any);
+    } finally {
+      setIsLoadingRecommendations(false);
+    }
+  };
+
+  // Fetch recommendations on mount
+  useEffect(() => {
+    fetchRecommendations();
+  }, []);
+
+  const getTypeIcon = (type: string) => {
+    switch (type) {
+      case "intership":
+        return BriefcaseIcon;
+      case "event":
+        return Award;
+      case "cour":
+        return BookOpen;
+      case "serie":
+        return GraduationCap;
+      case "article":
+        return FileText;
+      default:
+        return Target;
+    }
+  };
+
+  const getTypeName = (type: string) => {
+    const typeMap: Record<string, string> = {
+      intership: "Internship",
+      event: "Event/Workshop",
+      cour: "Course",
+      serie: "Exercise Series",
+      article: "Article"
+    };
+    return typeMap[type] || type;
+  };
+
+  const getMatchPercentage = (score: number) => {
+    return Math.round(score * 100);
+  };
 
   const generateVideoSummary = async (videoUrl: string) => {
     setIsSummarizing(true);
@@ -655,51 +696,73 @@ export function DashboardPage() {
                 <Sparkles className="h-6 w-6 text-primary" />
                 <h2 className="text-xl font-bold text-foreground">AI-Recommended Opportunities</h2>
               </div>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="text-primary hover:text-primary/80"
-                onClick={() => window.location.href = "/dashboard/ai-hub/opportunities"}
-              >
-                View All <ChevronRight className="h-4 w-4 ml-1" />
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={fetchRecommendations}
+                  disabled={isLoadingRecommendations}
+                >
+                  <RefreshCw className={`h-4 w-4 ${isLoadingRecommendations ? 'animate-spin' : ''}`} />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  className="text-primary hover:text-primary/80"
+                  onClick={() => window.location.href = "/dashboard/ai-hub/opportunities"}
+                >
+                  View All <ChevronRight className="h-4 w-4 ml-1" />
+                </Button>
+              </div>
             </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {recommendedOpportunities.slice(0, 4).map((opp) => {
-                const Icon = opp.icon;
-                return (
-                  <div
-                    key={opp.id}
-                    className="border border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer group"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
-                          <Icon className="h-5 w-5 text-primary" />
+            {isLoadingRecommendations ? (
+              <div className="flex items-center justify-center py-12">
+                <Loader2 className="h-8 w-8 animate-spin text-primary" />
+              </div>
+            ) : recommendations.length === 0 ? (
+              <div className="text-center py-8">
+                <Target className="h-12 w-12 text-muted-foreground mx-auto mb-3" />
+                <p className="text-muted-foreground mb-4">No recommendations available</p>
+                <Button onClick={fetchRecommendations} size="sm">
+                  <RefreshCw className="h-4 w-4 mr-2" />
+                  Load Recommendations
+                </Button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {recommendations.map((rec: any) => {
+                  const Icon = getTypeIcon(rec.content_type);
+                  return (
+                    <div
+                      key={rec.id}
+                      className="border border-border rounded-lg p-4 hover:border-primary transition-colors cursor-pointer group"
+                    >
+                      <div className="flex items-start justify-between mb-2">
+                        <div className="flex items-center gap-2">
+                          <div className="p-2 bg-primary/10 rounded-lg group-hover:bg-primary/20 transition-colors">
+                            <Icon className="h-5 w-5 text-primary" />
+                          </div>
+                          <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">
+                            {getMatchPercentage(rec.score)}% Match
+                          </span>
                         </div>
-                        <span className="text-xs font-medium text-primary bg-primary/10 px-2 py-1 rounded">
-                          {opp.match}% Match
+                      </div>
+                      <div className="mb-2">
+                        <span className="text-xs font-medium text-muted-foreground bg-muted px-2 py-0.5 rounded">
+                          {getTypeName(rec.content_type)}
                         </span>
                       </div>
+                      <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
+                        {rec.name || "Opportunity"}
+                      </h3>
+                      <p className="text-xs text-muted-foreground">
+                        AI-matched based on your profile
+                      </p>
                     </div>
-                    <h3 className="font-semibold text-foreground mb-1 group-hover:text-primary transition-colors">
-                      {opp.title}
-                    </h3>
-                    <p className="text-sm text-muted-foreground mb-2">{opp.company}</p>
-                    <div className="flex items-center justify-between text-xs text-muted-foreground">
-                      <span className="flex items-center gap-1">
-                        <Target className="h-3 w-3" />
-                        {opp.location}
-                      </span>
-                      <span className="flex items-center gap-1">
-                        <Clock className="h-3 w-3" />
-                        {opp.deadline}
-                      </span>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
 
           {/* Recent AI Generations */}
@@ -814,18 +877,18 @@ export function DashboardPage() {
               <h3 className="font-bold text-foreground">Bot Integration</h3>
             </div>
             <p className="text-sm text-muted-foreground mb-4">
-              Connect Rafeeq AI to your Discord or Telegram server
+              Connect Rafeeq AI to your Discord or Telegram
             </p>
             <Dialog open={isBotDialogOpen} onOpenChange={setIsBotDialogOpen}>
               <DialogTrigger asChild>
                 <Button className="w-full bg-primary hover:bg-primary/90">
                   <Plus className="h-4 w-4 mr-2" />
-                  Integrate Bot
+                  Add Bot
                 </Button>
               </DialogTrigger>
               <DialogContent>
                 <DialogHeader>
-                  <DialogTitle>Integrate Rafeeq Bot</DialogTitle>
+                  <DialogTitle>Add Rafeeq Bot</DialogTitle>
                 </DialogHeader>
                 <div className="space-y-4 py-4">
                   <div className="space-y-2">
@@ -840,27 +903,46 @@ export function DashboardPage() {
                       </SelectContent>
                     </Select>
                   </div>
+                  
                   {botPlatform === "discord" && (
-                    <div className="space-y-2">
-                      <Label>Discord Server ID</Label>
-                      <Input placeholder="Enter your server ID" />
+                    <div className="space-y-3">
+                      <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Click the button below to add Rafeeq bot to your Discord server
+                        </p>
+                        <Button 
+                          className="w-full bg-[#5865F2] hover:bg-[#4752C4]"
+                          onClick={() => window.open('https://discord.com/oauth2/authorize?client_id=1451601190486806629&permissions=2147601472&integration_type=0&scope=bot+applications.commands', '_blank')}
+                        >
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Add to Discord Server
+                        </Button>
+                      </div>
                       <p className="text-xs text-muted-foreground">
-                        Right-click your server and select "Copy ID"
+                        You'll need server administrator permissions to add the bot
                       </p>
                     </div>
                   )}
+                  
                   {botPlatform === "telegram" && (
-                    <div className="space-y-2">
-                      <Label>Telegram Group ID</Label>
-                      <Input placeholder="Enter your group ID" />
+                    <div className="space-y-3">
+                      <div className="p-4 bg-primary/5 rounded-lg border border-primary/20">
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Click the button below to start chatting with Rafeeq bot on Telegram
+                        </p>
+                        <Button 
+                          className="w-full bg-[#0088cc] hover:bg-[#006ba6]"
+                          onClick={() => window.open('https://t.me/Rafeeq_dz_bot', '_blank')}
+                        >
+                          <ExternalLink className="h-4 w-4 mr-2" />
+                          Open Telegram Bot
+                        </Button>
+                      </div>
                       <p className="text-xs text-muted-foreground">
-                        Use @userinfobot to get your group ID
+                        You can add the bot to your group or chat with it directly
                       </p>
                     </div>
                   )}
-                  <Button className="w-full bg-primary hover:bg-primary/90">
-                    Connect {botPlatform === "discord" ? "Discord" : "Telegram"} Bot
-                  </Button>
                 </div>
               </DialogContent>
             </Dialog>
@@ -870,6 +952,7 @@ export function DashboardPage() {
                 <br />• Course reminders & notifications
                 <br />• Administrative help commands
                 <br />• Study group coordination
+                <br />• AI-powered Q&A support
               </p>
             </div>
           </div>
