@@ -25,9 +25,9 @@ import { OpportunitiesPage } from "./pages/dashboard/ai-hub/opportunities/index"
 import { DiscordSyncPage } from "./pages/dashboard/ai-hub/discord-sync/index";
 import { MyLearningPage } from "./pages/dashboard/my-learning/index";
 import { CoursesPage } from "./pages/dashboard/my-learning/courses/index";
+import { WhiteboardPage } from "./pages/dashboard/my-learning/whiteboard/index";
 import { SettingsPage } from "./pages/dashboard/settings/index";
 import { Toaster } from "sonner";
-import { AIChatWidget } from "@/components/ai-chat-widget";
 import { ThemeProvider } from "@/components/theme-provider";
 
 const ClassroomPage = lazy(
@@ -105,6 +105,7 @@ const router = createBrowserRouter(
         />
         <Route path="my-learning/resources" element={<ResourcesPage />} />
         <Route path="my-learning/workspace" element={<WorkspacePage />} />
+        <Route path="my-learning/whiteboard" element={<WhiteboardPage />} />
         
         {/* Settings */}
         <Route path="settings" element={<SettingsPage />} />
@@ -120,7 +121,6 @@ export default function App() {
       <AuthProvider>
         <Toaster position="top-center" richColors />
         <RouterProvider router={router} />
-        <AIChatWidget />
       </AuthProvider>
     </ThemeProvider>
   );

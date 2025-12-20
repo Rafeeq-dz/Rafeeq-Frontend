@@ -1,4 +1,4 @@
-import { Bell, Search, Globe, Plus, LogOut, Settings as SettingsIcon, User, Users } from "lucide-react";
+import { Search, LogOut, Settings as SettingsIcon, User, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -12,24 +12,15 @@ import { useAuth } from "@/contexts/auth-context";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useState } from "react";
-import { Language } from "@/types/types";
 import { ModeToggle } from "../mode-toggle";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
+import { AITutorSidebar } from "../ai-tutor-sidebar";
 
 export function DashboardHeader() {
-  const [language, setLanguage] = useState<Language>("fr");
+  const [isAITutorOpen, setIsAITutorOpen] = useState(false);
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-
-  const handleLanguageChange = (newLanguage: Language) => {
-    setLanguage(newLanguage);
-    toast.success(`Language changed to ${newLanguage}`);
-  };
-
-  const handleJoinClassroom = () => {
-    toast.info("Join Classroom clicked!");
-  };
 
   const handleSignOut = async () => {
     try {
@@ -57,67 +48,19 @@ export function DashboardHeader() {
 
       {/* Right Actions */}
       <div className="flex items-center gap-3">
-        {/* Join Classroom Button */}
+        {/* AI Tutor Button */}
         <Button
           size="sm"
-          className="gap-2 bg-primary hover:bg-primary/90 text-primary-foreground hidden sm:flex"
-          onClick={handleJoinClassroom}
+          variant="outline"
+          className="gap-2 border-primary/20 hover:bg-primary/10 hover:text-primary hover:border-primary"
+          onClick={() => setIsAITutorOpen(true)}
         >
-          <Plus className="h-4 w-4" />
-          Join Classroom
+          <Sparkles className="h-4 w-4" />
+          <span className="hidden sm:inline font-medium">AI Tutor</span>
         </Button>
-
-        {/* Language Selector */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <Button
-              variant="ghost"
-              size="sm"
-              className="gap-2 hover:bg-primary/10 hover:text-primary"
-            >
-              <Globe className="h-4 w-4" />
-              <span className="hidden sm:inline font-medium">
-                {language.toUpperCase()}
-              </span>
-            </Button>
-          </DropdownMenuTrigger>
-          <DropdownMenuContent align="end" className="w-40">
-            <DropdownMenuLabel>Language</DropdownMenuLabel>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem 
-              onClick={() => handleLanguageChange("fr")}
-              className="cursor-pointer"
-            >
-              <span className="flex items-center justify-between w-full">
-                <span>🇫🇷 Français</span>
-                {language === "fr" && <span className="text-primary">✓</span>}
-              </span>
-            </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={() => handleLanguageChange("ar")}
-              className="cursor-pointer"
-            >
-              <span className="flex items-center justify-between w-full">
-                <span>🇩🇿 العربية</span>
-                {language === "ar" && <span className="text-primary">✓</span>}
-              </span>
-            </DropdownMenuItem>
-          </DropdownMenuContent>
-        </DropdownMenu>
 
         {/* Theme Toggle */}
         <ModeToggle />
-
-        {/* Notifications */}
-        <Button 
-          variant="ghost" 
-          size="icon"
-          className="relative hover:bg-primary/10 hover:text-primary"
-        >
-          <Bell className="h-5 w-5" />
-          <span className="absolute top-1 right-1 h-2 w-2 bg-secondary rounded-full"></span>
-          <span className="sr-only">Notifications</span>
-        </Button>
 
         {/* Profile Dropdown */}
         <DropdownMenu>
@@ -159,13 +102,6 @@ export function DashboardHeader() {
               <SettingsIcon className="mr-2 h-4 w-4" />
               <span>Settings</span>
             </DropdownMenuItem>
-            <DropdownMenuItem 
-              onClick={handleJoinClassroom}
-              className="cursor-pointer sm:hidden"
-            >
-              <Users className="mr-2 h-4 w-4" />
-              <span>Join Classroom</span>
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem 
               onClick={handleSignOut}
@@ -177,6 +113,12 @@ export function DashboardHeader() {
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
+
+      {/* AI Tutor Sidebar */}
+      <AITutorSidebar
+        isOpen={isAITutorOpen}
+        onClose={() => setIsAITutorOpen(false)}
+      />
     </header>
   );
 }

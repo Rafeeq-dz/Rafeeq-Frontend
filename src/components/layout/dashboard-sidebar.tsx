@@ -1,7 +1,6 @@
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { cn } from "@/lib/utils";
 import {
-  BookOpen,
   Users,
   Briefcase,
   Home,
@@ -15,6 +14,7 @@ import {
   Target,
   BookOpenText,
   GraduationCap,
+  Pencil,
 } from "lucide-react";
 import { useAuth } from "@/contexts/auth-context";
 import { toast } from "sonner";
@@ -47,10 +47,10 @@ const sidebarItems: SidebarItem[] = [
     icon: <GraduationCap size={20} />,
     children: [
       { label: "Courses", href: "/dashboard/my-learning/courses", icon: <BookOpenText size={18} /> },
-      { label: "Classrooms", href: "/dashboard/my-learning/classrooms", icon: <BookOpen size={18} /> },
       { label: "Study Groups", href: "/dashboard/my-learning/study-groups", icon: <Users size={18} /> },
       { label: "Resources", href: "/dashboard/my-learning/resources", icon: <FileText size={18} /> },
       { label: "Workspace", href: "/dashboard/my-learning/workspace", icon: <Briefcase size={18} /> },
+      { label: "Whiteboard", href: "/dashboard/my-learning/whiteboard", icon: <Pencil size={18} /> },
     ],
   },
 ]

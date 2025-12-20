@@ -2,40 +2,40 @@ import {Link} from 'react-router-dom'
 
 const MeetRafeeq = () => {
   return (
-    <div className='flex flex-col gap-5 items-start justify-center w-[571px]'>
+    <div className='flex flex-col gap-4 md:gap-5 items-start justify-center w-full max-w-full lg:max-w-[571px]'>
       {/* Header Section */}
-      <div className='flex flex-col gap-3 items-start w-full'>
-        <div className='border-[0.5px] border-[#6F6C90] flex h-[34px] items-center justify-center px-5 py-2.5 rounded-[20px] w-[195px]'>
-          <p className='font-normal leading-6 text-base text-[#0A0820] text-center whitespace-nowrap'>
+      <div className='flex flex-col gap-2 md:gap-3 items-start w-full'>
+        <div className='border-[0.5px] border-[#6F6C90] flex h-[30px] md:h-[34px] items-center justify-center px-4 md:px-5 py-2 md:py-2.5 rounded-[20px] w-auto'>
+          <p className='font-normal leading-6 text-sm md:text-base text-[#0A0820] text-center whitespace-nowrap'>
             Meet Rafeeq
           </p>
         </div>
         
-        <div className='flex flex-col gap-5 items-start justify-center w-full'>
-          <h1 className='font-bold leading-[62px] text-[50px] text-[#0A0820] w-full'>
+        <div className='flex flex-col gap-3 md:gap-4 lg:gap-5 items-start justify-center w-full'>
+          <h1 className='font-bold leading-tight md:leading-[52px] lg:leading-[62px] text-[28px] sm:text-[36px] md:text-[42px] lg:text-[50px] text-[#0A0820] w-full'>
             Your Personal AI Agent for a Smarter Campus
           </h1>
-          <p className='font-normal leading-6 text-base text-[#6F6C90] tracking-[-0.48px] w-full'>
+          <p className='font-normal leading-6 md:leading-7 text-sm md:text-base text-[#6F6C90] tracking-[-0.48px] w-full'>
             One agent, four nodes. Rafik automates your planning, summarizes your learning, and organizes your student life so you can focus on what matters.
           </p>
         </div>
       </div>
 
       {/* Buttons Section */}
-      <div className='flex flex-col gap-6 items-start justify-center'>
-        <div className='flex gap-6 items-center'>
+      <div className='flex flex-col gap-4 md:gap-6 items-start justify-center w-full'>
+        <div className='flex flex-col sm:flex-row gap-4 md:gap-6 items-stretch sm:items-center w-full sm:w-auto'>
           <Link 
             to="#" 
-            className='bg-[#0A0820] flex items-center justify-center pb-[19px] pt-4 px-8 rounded-[56px] shadow-[0px_3px_12px_0px_rgba(74,58,255,0.18)]'
+            className='bg-[#0A0820] flex items-center justify-center py-3 md:pb-[19px] md:pt-4 px-6 md:px-8 rounded-[56px] shadow-[0px_3px_12px_0px_rgba(74,58,255,0.18)] w-full sm:w-auto'
           >
-            <p className='font-bold leading-5 text-lg text-white text-center whitespace-nowrap'>
+            <p className='font-bold leading-5 text-base md:text-lg text-white text-center whitespace-nowrap'>
               Get started for free
             </p>
           </Link>
           
           <Link 
             to="#" 
-            className='bg-[rgba(74,58,255,0.18)] flex flex-col items-start p-2 rounded-[55.677px] w-[263px]'
+            className='bg-[rgba(74,58,255,0.18)] flex flex-col items-start p-1.5 md:p-2 rounded-[55.677px] w-full sm:w-auto sm:min-w-[240px] md:min-w-[263px]'
           >
             <div className='border-[1.74px] border-solid border-white h-14 overflow-hidden relative rounded-[59.157px] shadow-[0px_6.96px_65.247px_0px_rgba(74,58,255,0.18)] w-full'
               style={{
@@ -92,17 +92,15 @@ const MeetRafeeq = () => {
               </div>
 
               {/* Main Content */}
-              <div className='absolute flex items-center justify-center left-[calc(50%+0.09px)] top-[calc(50%+0.19px)] -translate-x-1/2 -translate-y-1/2 gap-[17.4px] z-10'>
-                <p className='font-semibold leading-7 text-[20px] text-white tracking-[-0.1px] whitespace-nowrap'>
+              <div className='absolute flex items-center justify-center left-[calc(50%+0.09px)] top-[calc(50%+0.19px)] -translate-x-1/2 -translate-y-1/2 gap-2 md:gap-[17.4px] z-10'>
+                <p className='font-semibold leading-7 text-base md:text-[20px] text-white tracking-[-0.1px] whitespace-nowrap'>
                   join our discord
                 </p>
-                <div className='relative rounded-[3.376px] size-[27px]'>
+                <div className='relative rounded-[3.376px] size-6 md:size-[27px]'>
                   <img
                     src="/images/discordicon.svg"
                     alt="Discord"
-                    width={27}
-                    height={27}
-                    className='rounded-[3.376px]'
+                    className='w-full h-full rounded-[3.376px]'
                   />
                 </div>
               </div>
@@ -139,43 +137,42 @@ const MeetRafeeq = () => {
         </div>
 
         {/* Info Text */}
-        <div className='flex gap-2 items-center'>
-          <div className='relative size-[22px]'>
+        <div className='flex gap-2 items-start w-full'>
+          <div className='relative size-5 md:size-[22px] flex-shrink-0 mt-0.5'>
             <img
               src="/icons/info-icon.svg"
               alt="Info"
-              width={22}
-              height={22}
+              className='w-full h-full'
             />
           </div>
-          <p className='font-normal leading-[26px] text-[#6F6C90] text-base w-[491.635px]'>
+          <p className='font-normal leading-6 md:leading-[26px] text-sm md:text-base text-[#6F6C90] flex-1'>
             Rafik automates your planning, summarizes your learning, and organizes your student life so you can focus on what matters
           </p>
         </div>
       </div>
 
       {/* Feature Tags */}
-      <div className='flex flex-col gap-3 items-start w-[571px]'>
-        <div className='flex gap-4 items-center'>
-          <div className='border-[0.5px] border-[#6F6C90] flex items-center justify-center px-5 py-2.5 rounded-[24px]'>
-            <p className='font-bold leading-6 text-base text-[#0A0820] whitespace-nowrap'>
+      <div className='flex flex-col gap-2 md:gap-3 items-start w-full'>
+        <div className='flex flex-wrap gap-2 md:gap-4 items-center'>
+          <div className='border-[0.5px] border-[#6F6C90] flex items-center justify-center px-3 md:px-5 py-2 md:py-2.5 rounded-[24px]'>
+            <p className='font-bold leading-5 md:leading-6 text-xs md:text-base text-[#0A0820] whitespace-nowrap'>
               Proactive Agentic Planning
             </p>
           </div>
-          <div className='border-[0.5px] border-[#6F6C90] flex items-center justify-center px-5 py-2.5 rounded-[24px]'>
-            <p className='font-bold leading-6 text-base text-[#0A0820] whitespace-nowrap'>
+          <div className='border-[0.5px] border-[#6F6C90] flex items-center justify-center px-3 md:px-5 py-2 md:py-2.5 rounded-[24px]'>
+            <p className='font-bold leading-5 md:leading-6 text-xs md:text-base text-[#0A0820] whitespace-nowrap'>
               Discord-to-Platform Sync
             </p>
           </div>
         </div>
-        <div className='flex gap-4 items-center w-full'>
-          <div className='border-[0.5px] border-[#6F6C90] flex items-center justify-center px-5 py-2.5 rounded-[24px]'>
-            <p className='font-bold leading-6 text-base text-[#0A0820] whitespace-nowrap'>
+        <div className='flex flex-wrap gap-2 md:gap-4 items-center w-full'>
+          <div className='border-[0.5px] border-[#6F6C90] flex items-center justify-center px-3 md:px-5 py-2 md:py-2.5 rounded-[24px]'>
+            <p className='font-bold leading-5 md:leading-6 text-xs md:text-base text-[#0A0820] whitespace-nowrap'>
               RAG-Powered Knowledge Base
             </p>
           </div>
-          <div className='border-[0.5px] border-[#6F6C90] flex items-center justify-center px-5 py-2.5 rounded-[24px]'>
-            <p className='font-bold leading-6 text-base text-[#0A0820] whitespace-nowrap'>
+          <div className='border-[0.5px] border-[#6F6C90] flex items-center justify-center px-3 md:px-5 py-2 md:py-2.5 rounded-[24px]'>
+            <p className='font-bold leading-5 md:leading-6 text-xs md:text-base text-[#0A0820] whitespace-nowrap'>
               Smart Opportunity Discovery
             </p>
           </div>

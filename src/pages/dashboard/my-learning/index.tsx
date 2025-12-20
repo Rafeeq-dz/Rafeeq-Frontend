@@ -1,5 +1,5 @@
 import { Link } from "react-router-dom";
-import { BookOpen, Users, MessageSquare, FileText, Briefcase, ArrowRight } from "lucide-react";
+import { BookOpen, Users, MessageSquare, FileText, Briefcase, Pencil, ArrowRight } from "lucide-react";
 
 export function MyLearningPage() {
   const sections = [
@@ -47,6 +47,15 @@ export function MyLearningPage() {
       count: "Active",
       color: "text-pink-500",
       bgColor: "bg-pink-500/10",
+    },
+    {
+      icon: Pencil,
+      title: "Whiteboard",
+      description: "Full screen whiteboard for brainstorming and drawing",
+      href: "/dashboard/my-learning/whiteboard",
+      count: "Full Screen",
+      color: "text-indigo-500",
+      bgColor: "bg-indigo-500/10",
     },
   ];
 
