@@ -12,7 +12,7 @@ import { ClassroomsPage } from "@/pages/dashboard/my-learning/classrooms/classro
 import { StudyGroupsPage } from "@/pages/dashboard/my-learning/study-groups/index.tsx";
 import { ResourcesPage } from "@/pages/dashboard/my-learning/resources/resources";
 import { WorkspacePage } from "@/pages/dashboard/my-learning/workspace/workspace";
-import { AIToolsPage } from "@/pages/dashboard/ai-hub/ai-tutor/index.tsx";
+import { AIToolsPage } from "@/pages/dashboard/ai-hub/ai-tools/index.tsx";
 import { LoginPage } from "@/pages/auth/login.tsx";
 import { RegisterPage } from "@/pages/auth/register.tsx";
 import { JSX, lazy, Suspense } from "react";
@@ -20,7 +20,6 @@ import { LandingPage } from "./pages/landing/landing";
 import { DashboardPage } from "./pages/dashboard/overview/index";
 import { CalendarPage } from "./pages/dashboard/calendar/index";
 import { AIHubPage } from "./pages/dashboard/ai-hub/index";
-import { ContentGeneratorPage } from "./pages/dashboard/ai-hub/content-generator/index";
 import { OpportunitiesPage } from "./pages/dashboard/ai-hub/opportunities/index";
 import { DiscordSyncPage } from "./pages/dashboard/ai-hub/discord-sync/index";
 import { MyLearningPage } from "./pages/dashboard/my-learning/index";
@@ -77,8 +76,7 @@ const router = createBrowserRouter(
         
         {/* AI Hub Routes */}
         <Route path="ai-hub" element={<AIHubPage />} />
-        <Route path="ai-hub/content-generator" element={<ContentGeneratorPage />} />
-        <Route path="ai-hub/ai-tutor" element={<AIToolsPage />} />
+        <Route path="ai-hub/ai-tools" element={<AIToolsPage />} />
         <Route path="ai-hub/opportunities" element={<OpportunitiesPage />} />
         <Route path="ai-hub/discord-sync" element={<DiscordSyncPage />} />
         
@@ -117,7 +115,7 @@ const router = createBrowserRouter(
 
 export default function App() {
   return (
-    <ThemeProvider defaultTheme="light" storageKey="aspo-theme">
+    <ThemeProvider defaultTheme="light" storageKey="Rafeeq-theme">
       <AuthProvider>
         <Toaster position="top-center" richColors />
         <RouterProvider router={router} />

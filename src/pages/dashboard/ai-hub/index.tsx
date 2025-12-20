@@ -6,19 +6,11 @@ export function AIHubPage() {
   const features = [
     {
       icon: Sparkles,
-      title: "Content Generator",
-      description: "Generate curriculum-aligned exams, quizzes, and practice exercises powered by AI",
-      href: "/dashboard/ai-hub/content-generator",
+      title: "AI Tools",
+      description: "Generate curriculum-aligned content and practice exercises with AI-powered tools",
+      href: "/dashboard/ai-hub/ai-tools",
       color: "text-purple-500",
       bgColor: "bg-purple-500/10",
-    },
-    {
-      icon: Bot,
-      title: "AI Tutor",
-      description: "Get personalized help with RAG-powered AI that understands your learning context",
-      href: "/dashboard/ai-hub/ai-tutor",
-      color: "text-blue-500",
-      bgColor: "bg-blue-500/10",
     },
     {
       icon: Briefcase,

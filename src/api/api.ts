@@ -251,3 +251,209 @@ export const resourceApi = {
     return data.resource;
   },
 };
+
+// AI API
+const AI_BASE_URL = "https://unuseable-subnatural-janel.ngrok-free.dev";
+
+export interface ExamRequest {
+  subject: string;
+  num_questions: number;
+  user_input: string; // Required field
+  examples_exams?: string[];
+}
+
+export interface ExamResponse {
+  exam: string;
+  corrections: string;
+}
+
+export interface ExerciseRequest {
+  subject: string;
+  num_exercises?: number; // Optional, defaults to 5
+  user_input: string; // Required field
+  examples_exercises?: string[] | null;
+}
+
+export interface ExerciseResponse {
+  exercises: string;
+  solutions: string;
+}
+
+export interface QuizOption {
+  choice: string; // "a", "b", "c"
+  value: string;
+  is_correct: boolean;
+}
+
+export interface SingleQuiz {
+  question: string;
+  options: QuizOption[]; // exactly 3 options
+}
+
+export interface QuizRequest {
+  subject: string;
+  num_questions: number;
+  user_input: string; // Required field
+  examples_exercises?: string[];
+}
+
+export interface QuizResponse {
+  quizzes: SingleQuiz[];
+}
+
+export interface WeeklyScheduleRequest {
+  user_input: string; // Required field based on WeeklyInput schema
+}
+
+export interface UserRapportRequest {
+  user_id: string;
+  courses?: string[];
+  performance_data?: any;
+}
+
+export interface RecommendationItem {
+  title: string;
+  description: string;
+  content_type: string;
+  url?: string;
+  metadata?: any;
+}
+
+export const aiApi = {
+  generateExam: async (request: ExamRequest): Promise<ExamResponse> => {
+    const response = await fetch(`${AI_BASE_URL}/ai/generate/exam`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to generate exam" }));
+      throw new Error(error.detail || "Failed to generate exam");
+    }
+
+    return await response.json();
+  },
+
+  generateExercise: async (request: ExerciseRequest): Promise<ExerciseResponse> => {
+    const response = await fetch(`${AI_BASE_URL}/ai/generate/exercise`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to generate exercise" }));
+      throw new Error(error.detail || "Failed to generate exercise");
+    }
+
+    return await response.json();
+  },
+
+  generateQuiz: async (request: QuizRequest): Promise<QuizResponse> => {
+    const response = await fetch(`${AI_BASE_URL}/ai/generate/quiz`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to generate quiz" }));
+      throw new Error(error.detail || "Failed to generate quiz");
+    }
+
+    return await response.json();
+  },
+
+  generateWeeklySchedule: async (request: WeeklyScheduleRequest): Promise<any> => {
+    const response = await fetch(`${AI_BASE_URL}/ai/generate_weekly_schedule`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to generate schedule" }));
+      throw new Error(error.detail || "Failed to generate schedule");
+    }
+
+    return await response.json();
+  },
+
+  generateUserRapport: async (request: UserRapportRequest): Promise<any> => {
+    const response = await fetch(`${AI_BASE_URL}/ai/generate_user_rapport`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+      body: JSON.stringify(request),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to generate rapport" }));
+      throw new Error(error.detail || "Failed to generate rapport");
+    }
+
+    return await response.json();
+  },
+
+  getRecommendations: async (
+    query: string,
+    contentType?: string,
+    limit: number = 5
+  ): Promise<RecommendationItem[]> => {
+    const params = new URLSearchParams({
+      query,
+      limit: limit.toString(),
+    });
+    
+    if (contentType) {
+      params.append("content_type", contentType);
+    }
+
+    const response = await fetch(`${AI_BASE_URL}/recomonde/recommend?${params.toString()}`, {
+      method: "GET",
+      headers: {
+        "ngrok-skip-browser-warning": "true",
+      },
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to get recommendations" }));
+      throw new Error(error.detail || "Failed to get recommendations");
+    }
+
+    return await response.json();
+  },
+
+  addRecommendationItem: async (item: RecommendationItem): Promise<any> => {
+    const response = await fetch(`${AI_BASE_URL}/recomonde/add-item`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "ngrok-skip-browser-warning": "true",
+      },
+      body: JSON.stringify(item),
+    });
+
+    if (!response.ok) {
+      const error = await response.json().catch(() => ({ detail: "Failed to add item" }));
+      throw new Error(error.detail || "Failed to add item");
+    }
+
+    return await response.json();
+  },
+};

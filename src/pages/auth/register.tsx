@@ -6,11 +6,14 @@ import { useAuth } from "@/contexts/auth-context";
 import { authApi } from "@/api/api";
 import { toast } from "sonner";
 import { Eye, EyeOff } from "lucide-react";
-import logo from "@/assets/logo.svg"
+import { useTheme } from "@/components/theme-provider";
+import logo from "@/assets/logo.svg";
+import logoWhite from "@/assets/logo-white.svg";
 
 export function RegisterPage() {
   const navigate = useNavigate();
   const { login } = useAuth();
+  const { theme } = useTheme();
   const [step, setStep] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -153,7 +156,7 @@ export function RegisterPage() {
         <div className="w-full max-w-md space-y-8 bg-card p-10 rounded-3xl border border-border shadow-[0_8px_30px_rgb(0,0,0,0.12)] backdrop-blur-sm">
           {/* Logo */}
             <div className="flex justify-center">
-              <img src={logo} alt="Aspo Logo" className="h-12 w-auto" />
+              <img src={theme === 'dark' ? logoWhite : logo} alt="Rafeeq Logo" className="w-[147px] h-auto" />
             </div>
 
           {/* Header */}
